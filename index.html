@@ -1,0 +1,432 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>간단 지출 기록</title>
+  <meta name="theme-color" content="#111111">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="apple-touch-icon" href="./icons/icon-192.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Noto Sans KR, Apple SD Gothic Neo, sans-serif; background:#f7f7f8; color:#222; }
+    header { position: sticky; top: 0; background: #fff; border-bottom: 1px solid #eee; padding: 12px 16px; z-index: 10; }
+    header h1 { margin: 0 0 8px; font-size: 18px; }
+    .row { display: flex; gap: 8px; flex-wrap: wrap; }
+    input, select, button, textarea { font: inherit; padding: 10px 12px; border: 1px solid #ddd; border-radius: 10px; background: #fff; }
+    input[type="number"] { width: 130px; }
+    input[type="date"] { width: 150px; }
+    select { min-width: 96px; }
+    button { cursor: pointer; border: 1px solid #ccc; background:#fff; }
+    button.primary { background:#111; color:#fff; border-color:#111; }
+    button.ghost { background:#fff; color:#111; }
+    main { padding: 16px; max-width: 980px; margin: 0 auto; }
+    .cards { display: grid; grid-template-columns: 1fr; gap: 12px; }
+    @media (min-width: 720px) {
+      .cards { grid-template-columns: 1fr 1fr; }
+    }
+    .card { background:#fff; border:1px solid #eee; border-radius: 12px; padding: 12px; }
+    .muted { color:#666; }
+    .calendar { margin-top: 8px; display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
+    .dow { text-align:center; font-weight:600; color:#666; font-size: 12px; padding: 6px 0; }
+    .day { background:#fff; border:1px solid #eee; border-radius: 10px; min-height: 86px; padding: 8px; display:flex; flex-direction:column; gap:6px; }
+    .day header { position: static; border: 0; padding: 0; background: transparent; }
+    .day .d { font-size: 13px; font-weight: 700; color:#444; }
+    .day .total { margin-top:auto; font-size: 13px; font-weight:700; }
+    .day.today { outline: 2px solid #111; }
+    .day.selected { box-shadow: inset 0 0 0 2px #111; }
+    .monthbar { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom: 8px; }
+    .monthbar .actions { display:flex; gap:6px; }
+    .pill { display:inline-block; padding: 4px 8px; border-radius: 999px; background:#f0f0f2; font-size: 12px; margin-right:6px; }
+    .list { margin-top: 8px; display:flex; flex-direction:column; gap:8px; max-height: 300px; overflow:auto; }
+    .item { display:flex; align-items:flex-start; justify-content:space-between; gap:8px; padding:8px; border:1px solid #eee; border-radius:8px; }
+    .item .meta { font-size:12px; color:#666; }
+    .item .name { font-weight:600; }
+    .right { text-align:right; }
+    .empty { padding: 16px; text-align:center; color:#666; border:1px dashed #ddd; border-radius: 8px; }
+    .grid3 { display:grid; grid-template-columns: 1fr 1fr 1fr; gap:8px; }
+    .hr { height:1px; background:#eee; margin: 10px 0; }
+    .help { font-size: 12px; color:#666; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>간단 지출 기록</h1>
+    <div class="row">
+      <input id="name" placeholder="지출 이름">
+      <input id="amount" type="number" inputmode="decimal" placeholder="금액">
+      <select id="category">
+        <option value="필수">필수</option>
+        <option value="투자">투자</option>
+        <option value="소비">소비</option>
+      </select>
+      <input id="date" type="date">
+      <input id="memo" placeholder="메모(선택)">
+      <button id="add" class="primary">추가</button>
+    </div>
+    <div class="row" style="margin-top:8px">
+      <div class="help">카테고리: 필수 · 투자 · 소비만 사용. 데이터는 기기 내에만 저장됨 (localStorage).</div>
+    </div>
+  </header>
+
+  <main>
+    <div class="cards">
+      <section class="card">
+        <div class="monthbar">
+          <div>
+            <button id="prev">이전 달</button>
+            <strong id="monthLabel"></strong>
+            <button id="next">다음 달</button>
+          </div>
+          <div class="actions">
+            <button id="export">내보내기</button>
+            <input id="importFile" type="file" accept="application/json" style="display:none">
+            <button id="importBtn" class="ghost">가져오기</button>
+          </div>
+        </div>
+        <div class="grid3">
+          <div class="pill" id="sumEssential">필수 0</div>
+          <div class="pill" id="sumInvest">투자 0</div>
+          <div class="pill" id="sumSpend">소비 0</div>
+        </div>
+        <div class="calendar" id="calendarHead"></div>
+        <div class="calendar" id="calendar"></div>
+      </section>
+
+      <section class="card">
+        <h3 style="margin:4px 0 8px">선택한 날짜 내역</h3>
+        <div id="selectedDateLabel" class="muted"></div>
+        <div class="list" id="list"></div>
+      </section>
+
+      <section class="card" style="grid-column: 1 / -1;">
+        <h3 style="margin:4px 0 8px">반복 지출</h3>
+        <div class="row">
+          <input id="rName" placeholder="이름">
+          <input id="rAmount" type="number" inputmode="decimal" placeholder="금액">
+          <select id="rCategory">
+            <option value="필수">필수</option>
+            <option value="투자">투자</option>
+            <option value="소비">소비</option>
+          </select>
+          <input id="rDay" type="number" placeholder="매월 몇 일" min="1" max="31" style="width:120px">
+          <input id="rStart" type="month">
+          <button id="rAdd" class="primary">등록</button>
+        </div>
+        <div class="help" style="margin-top:6px">매월 지정한 일자에 자동 반영. 29·30·31일이 없는 달은 말일에 반영.</div>
+        <div class="hr"></div>
+        <div class="list" id="rList"></div>
+      </section>
+    </div>
+  </main>
+
+<script>
+(function(){
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./sw.js').catch(()=>{});
+    });
+  }
+
+  const $ = sel => document.querySelector(sel);
+  const fmtKRW = n => (n||0).toLocaleString('ko-KR') + '원';
+  const STORAGE_KEY = 'simple-expenses-v1';
+  const data = load();
+
+  const state = {
+    year: new Date().getFullYear(),
+    month: new Date().getMonth(),
+    selectedDate: todayStr(),
+  };
+
+  $('#date').value = state.selectedDate;
+
+  $('#add').addEventListener('click', onAdd);
+  $('#prev').addEventListener('click', ()=>changeMonth(-1));
+  $('#next').addEventListener('click', ()=>changeMonth(1));
+  $('#export').addEventListener('click', onExport);
+  $('#importBtn').addEventListener('click', ()=>$('#importFile').click());
+  $('#importFile').addEventListener('change', onImport);
+  $('#rAdd').addEventListener('click', onRAdd);
+
+  const weekNames = ['일','월','화','수','목','금','토'];
+  const head = $('#calendarHead');
+  head.innerHTML = '';
+  for (let i=0;i<7;i++) {
+    const el = document.createElement('div');
+    el.className = 'dow';
+    el.textContent = weekNames[i];
+    head.appendChild(el);
+  }
+
+  render();
+
+  function onAdd(){
+    const name = $('#name').value.trim();
+    const amount = parseFloat($('#amount').value);
+    const category = $('#category').value;
+    const date = $('#date').value || todayStr();
+    const memo = $('#memo').value.trim();
+
+    if (!name) { alert('지출 이름을 입력해줘'); return; }
+    if (!isFinite(amount) || amount <= 0) { alert('금액을 숫자로 입력해줘'); return; }
+    if (!['필수','투자','소비'].includes(category)) { alert('카테고리 오류'); return; }
+
+    data.expenses.push({
+      id: uid(),
+      name, amount, category, date, memo
+    });
+    persist();
+    clearQuickAdd();
+    state.selectedDate = date;
+    render();
+  }
+
+  function onDelete(id){
+    const idx = data.expenses.findIndex(x=>x.id===id);
+    if (idx>=0) {
+      data.expenses.splice(idx,1);
+      persist();
+      render();
+    }
+  }
+
+  function onRAdd(){
+    const name = $('#rName').value.trim();
+    const amount = parseFloat($('#rAmount').value);
+    const category = $('#rCategory').value;
+    const day = parseInt($('#rDay').value,10);
+    const start = $('#rStart').value;
+    if (!name) { alert('이름 입력'); return; }
+    if (!isFinite(amount) || amount<=0) { alert('금액 확인'); return; }
+    if (!(day>=1 && day<=31)) { alert('일자는 1~31'); return; }
+    const startYear = start ? parseInt(start.split('-')[0],10) : new Date().getFullYear();
+    const startMonth = start ? parseInt(start.split('-')[1],10)-1 : new Date().getMonth();
+
+    data.recurring.push({
+      id: uid(), name, amount, category, memo:'', day, startYear, startMonth, active:true
+    });
+    persist();
+    $('#rName').value=''; $('#rAmount').value=''; $('#rDay').value=''; $('#rStart').value='';
+    renderRecurring();
+    renderCalendar();
+  }
+
+  function onRDelete(id){
+    const idx = data.recurring.findIndex(x=>x.id===id);
+    if (idx>=0){ data.recurring.splice(idx,1); persist(); renderRecurring(); renderCalendar(); }
+  }
+
+  function changeMonth(delta){
+    let y = state.year, m = state.month + delta;
+    if (m<0){ y--; m=11; } else if (m>11){ y++; m=0; }
+    state.year = y; state.month = m;
+    renderCalendar();
+    renderList();
+  }
+
+  function render(){
+    renderMonthLabel();
+    renderCalendar();
+    renderList();
+    renderRecurring();
+  }
+
+  function renderMonthLabel(){
+    const d = new Date(state.year, state.month, 1);
+    $('#monthLabel').textContent = d.getFullYear() + '년 ' + (d.getMonth()+1) + '월';
+  }
+
+  function renderCalendar(){
+    renderMonthLabel();
+    const cal = $('#calendar');
+    cal.innerHTML = '';
+
+    const first = new Date(state.year, state.month, 1);
+    const daysInMonth = new Date(state.year, state.month+1, 0).getDate();
+    const startDow = first.getDay();
+
+    const totals = Array(daysInMonth).fill(0);
+
+    const ymPrefix = yyyyMm(state.year, state.month);
+    for (const e of data.expenses){
+      if (e.date.startsWith(ymPrefix)){
+        const day = parseInt(e.date.slice(8,10),10);
+        if (day>=1 && day<=daysInMonth) totals[day-1] += e.amount;
+      }
+    }
+
+    for (const r of data.recurring){
+      if (!r.active) continue;
+      if (r.startYear>state.year || (r.startYear===state.year && r.startMonth>state.month)) continue;
+      const day = clampDay(r.day, daysInMonth);
+      totals[day-1] += r.amount;
+    }
+
+    const sumCat = { '필수':0, '투자':0, '소비':0 };
+    for (const e of data.expenses){
+      if (e.date.startsWith(ymPrefix)) sumCat[e.category]+=e.amount;
+    }
+    for (const r of data.recurring){
+      if (!r.active) continue;
+      if (r.startYear>state.year || (r.startYear===state.year && r.startMonth>state.month)) continue;
+      sumCat[r.category]+=r.amount;
+    }
+    $('#sumEssential').textContent = '필수 ' + fmtKRW(sumCat['필수']);
+    $('#sumInvest').textContent   = '투자 ' + fmtKRW(sumCat['투자']);
+    $('#sumSpend').textContent    = '소비 ' + fmtKRW(sumCat['소비']);
+
+    for (let i=0;i<startDow;i++){
+      const spacer = document.createElement('div');
+      cal.appendChild(spacer);
+    }
+
+    for (let d=1; d<=daysInMonth; d++){
+      const cell = document.createElement('div');
+      cell.className = 'day';
+      const fullDate = ymd(state.year,state.month,d);
+      const h = document.createElement('div');
+      h.className = 'd';
+      h.textContent = d;
+      cell.appendChild(h);
+
+      const total = document.createElement('div');
+      total.className = 'total';
+      total.textContent = totals[d-1] ? fmtKRW(totals[d-1]) : '';
+      cell.appendChild(total);
+
+      if (fullDate === todayStr()) cell.classList.add('today');
+      if (fullDate === state.selectedDate) cell.classList.add('selected');
+
+      cell.addEventListener('click', ()=>{
+        state.selectedDate = fullDate;
+        $('#date').value = fullDate;
+        renderCalendar();
+        renderList();
+      });
+
+      cal.appendChild(cell);
+    }
+  }
+
+  function renderList(){
+    $('#selectedDateLabel').textContent = state.selectedDate;
+    const list = $('#list');
+    list.innerHTML = '';
+    const arr = data.expenses.filter(e=> e.date === state.selectedDate)
+      .sort((a,b)=>b.amount-a.amount);
+
+    const d = new Date(state.selectedDate);
+    const daysInMonth = new Date(d.getFullYear(), d.getMonth()+1, 0).getDate();
+    const rec = data.recurring.filter(r=> r.active &&
+      !(r.startYear>d.getFullYear() || (r.startYear===d.getFullYear() && r.startMonth>d.getMonth())) &&
+      clampDay(r.day, daysInMonth) === d.getDate()
+    ).map(r=>({
+      id:'rec-'+r.id, name:r.name, amount:r.amount, category:r.category, memo:'(반복)'
+    }));
+
+    const combined = [...rec, ...arr];
+
+    if (combined.length===0){
+      const empty = document.createElement('div');
+      empty.className = 'empty';
+      empty.textContent = '등록된 내역이 없습니다';
+      list.appendChild(empty);
+      return;
+    }
+
+    for (const e of combined){
+      const row = document.createElement('div'); row.className = 'item';
+      const left = document.createElement('div');
+      const name = document.createElement('div'); name.className='name'; name.textContent = e.name;
+      const meta = document.createElement('div'); meta.className='meta'; meta.textContent = e.category + (e.memo ? ' · ' + e.memo : '');
+      left.appendChild(name); left.appendChild(meta);
+      const right = document.createElement('div'); right.className='right'; right.innerHTML = '<div>'+fmtKRW(e.amount)+'</div>';
+      if (!String(e.id).startsWith('rec-')){
+        const del = document.createElement('button'); del.textContent='삭제';
+        del.addEventListener('click', ()=>onDelete(e.id));
+        right.appendChild(del);
+      } else {
+        const tag = document.createElement('div'); tag.className='meta'; tag.textContent='반복';
+        right.appendChild(tag);
+      }
+      row.appendChild(left); row.appendChild(right);
+      list.appendChild(row);
+    }
+  }
+
+  function renderRecurring(){
+    const list = $('#rList');
+    list.innerHTML = '';
+    if (data.recurring.length===0){
+      const empty = document.createElement('div');
+      empty.className = 'empty';
+      empty.textContent = '등록된 반복 지출이 없습니다';
+      list.appendChild(empty);
+      return;
+    }
+    for (const r of data.recurring){
+      const row = document.createElement('div'); row.className='item';
+      const left = document.createElement('div');
+      const name = document.createElement('div'); name.className='name'; name.textContent = r.name;
+      const meta = document.createElement('div'); meta.className='meta';
+      meta.textContent = `${r.category} · 매월 ${r.day}일 · 시작 ${r.startYear}-${String(r.startMonth+1).padStart(2,'0')}`;
+      left.appendChild(name); left.appendChild(meta);
+      const right = document.createElement('div'); right.className='right';
+      right.innerHTML = '<div>'+fmtKRW(r.amount)+'</div>';
+      const del = document.createElement('button'); del.textContent='삭제';
+      del.addEventListener('click', ()=>onRDelete(r.id));
+      right.appendChild(del);
+      row.appendChild(left); row.appendChild(right);
+      list.appendChild(row);
+    }
+  }
+
+  function todayStr(){
+    const t = new Date();
+    return ymd(t.getFullYear(), t.getMonth(), t.getDate());
+  }
+  function ymd(y,m,d){ return `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`; }
+  function yyyyMm(y,m){ return `${y}-${String(m+1).padStart(2,'0')}`; }
+  function uid(){ return Math.random().toString(36).slice(2)+Date.now().toString(36); }
+  function persist(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); }
+  function load(){
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) return JSON.parse(raw);
+    } catch(e){}
+    return { expenses: [], recurring: [] };
+  }
+  function clampDay(day, dim){ return Math.min(day, dim); }
+  function clearQuickAdd(){ $('#name').value=''; $('#amount').value=''; $('#memo').value=''; }
+
+  function onExport(){
+    const blob = new Blob([JSON.stringify(data,null,2)], {type:'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = 'expenses-backup.json';
+    document.body.appendChild(a); a.click(); a.remove();
+    URL.revokeObjectURL(url);
+  }
+  async function onImport(evt){
+    const file = evt.target.files[0];
+    if (!file) return;
+    const text = await file.text();
+    try {
+      const obj = JSON.parse(text);
+      if (!obj || !Array.isArray(obj.expenses) || !Array.isArray(obj.recurring)) throw new Error('형식 오류');
+      data.expenses = obj.expenses; data.recurring = obj.recurring;
+      persist(); render();
+      alert('가져오기 완료');
+    } catch(e){
+      alert('가져오기 실패: ' + e.message);
+    } finally {
+      evt.target.value='';
+    }
+  }
+
+})();</script>
+</body>
+</html>
