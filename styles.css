@@ -267,8 +267,9 @@ main {
     }
   
     .day .d {
-      font-size: 12px;
+      font-size: 9px;
       margin: 2px;              /* 날짜 숫자는 살짝 띄우기 */
+      letter-spacing: -0.5px;
     }
   
     .day .total {
