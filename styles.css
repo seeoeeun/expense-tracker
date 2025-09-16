@@ -229,3 +229,110 @@ main {
   align-items: center;
   flex-wrap: wrap;
 }
+
+/* =========================
+   레이아웃 안전장치 (Overflow 방지)
+   ========================= */
+   .cards {
+    /* 모바일 기본: 1열 */
+    grid-template-columns: 1fr;
+  }
+  
+  /* 캘린더 그리드가 부모 폭을 넘지 않도록 */
+  .calendar {
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    width: 100%;
+  }
+  
+  /* 카드 안에서 내용이 넘칠 때 끊어지지 않고 줄바꿈 */
+  .card {
+    overflow: hidden;        /* 내부 스크롤/넘침 방지 */
+    word-break: break-word;  /* 긴 단어/숫자 줄바꿈 */
+  }
+  
+  /* 각 날짜 셀도 내용이 가로로 밀리지 않도록 */
+  .day {
+    min-width: 0;
+  }
+  
+  /* =========================
+     모바일 전용 (≤ 719px)
+     ========================= */
+  @media (max-width: 719px) {
+    /* 입력행/버튼 간격 살짝 줄이기 */
+    .row {
+      gap: 6px;
+    }
+  
+    /* 캘린더 카드가 세로 공간 과하게 차지하지 않도록 */
+    .day {
+      min-height: 70px;      /* 기존 86px → 70px */
+      padding: 6px;          /* 기존 8px → 6px */
+    }
+  
+    .day .d {
+      font-size: 12px;       /* 날짜 숫자 조금 축소 */
+    }
+  
+    .day .total {
+      font-size: 11px;       /* 합계 텍스트 축소 (모바일에서 크게 느껴졌던 부분) */
+      font-weight: 600;      /* 굵기도 살짝 낮춤 */
+    }
+  
+    /* 카드들 간격/패딩 조정으로 전체 폭 여유 확보 */
+    .cards {
+      gap: 10px;
+    }
+    .card {
+      padding: 10px;
+    }
+  
+    /* 입력창 폭 최적화 */
+    input[type="number"] {
+      width: 110px;
+    }
+    input[type="date"] {
+      width: 140px;
+    }
+  }
+  
+  /* =========================
+     태블릿 (720px ~ 1023px)
+     ========================= */
+  @media (min-width: 720px) and (max-width: 1023px) {
+    .cards {
+      grid-template-columns: 1fr 1fr; /* 2열 */
+      gap: 12px;
+    }
+    .day {
+      min-height: 80px;
+    }
+    .day .total {
+      font-size: 12px;
+    }
+  }
+  
+  /* =========================
+     데스크탑 (≥ 1024px)
+     ========================= */
+  @media (min-width: 1024px) {
+    .cards {
+      grid-template-columns: 1fr 1fr; /* 필요하면 3열로 변경 가능: 1fr 1fr 1fr */
+      gap: 14px;
+    }
+    .card {
+      padding: 12px;
+    }
+    .day {
+      min-height: 90px;      /* 데스크탑은 여유롭게 */
+      padding: 8px;
+    }
+    .day .d {
+      font-size: 13px;
+    }
+    .day .total {
+      font-size: 13px;       /* 데스크탑에서는 가독성↑ */
+      font-weight: 700;
+    }
+  }
+  
