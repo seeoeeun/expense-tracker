@@ -267,14 +267,14 @@ main {
     }
   
     .day .d {
-      font-size: 9px;
+      font-size: 11px;
       margin: 2px;              /* 날짜 숫자는 살짝 띄우기 */
-      letter-spacing: -0.5px;
     }
   
     .day .total {
-      font-size: 11px;
+      font-size: 9px;
       margin: 2px;              /* 합계도 여백 최소화 */
+      letter-spacing: -0.5px;
     }
   }
 
