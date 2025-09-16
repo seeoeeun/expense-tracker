@@ -258,28 +258,25 @@ main {
   /* =========================
      모바일 전용 (≤ 719px)
      ========================= */
-  @media (max-width: 719px) {
+@media (max-width: 719px) {
     .day {
-      border: none;        /* 테두리 제거 */
-      border-radius: 0;    /* 둥근 모서리 제거 */
-      padding: 0;          /* 여백 제거 */
-      min-height: 48px;    /* 칸 높이도 더 줄이기 */
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
+      border: 1px solid #ddd;   /* 테두리는 살리되 */
+      border-radius: 0;         /* 둥글게 → 네모 */
+      padding: 0;               /* 여백 제거 */
+      min-height: 60px;         /* 전체 높이도 줄이기 */
     }
   
     .day .d {
       font-size: 12px;
-      margin: 0;           /* 숫자는 위쪽에 딱 붙여서 */
+      margin: 2px;              /* 날짜 숫자는 살짝 띄우기 */
     }
   
     .day .total {
       font-size: 11px;
-      margin: 0;           /* 합계도 딱 붙여서 */
+      margin: 2px;              /* 합계도 여백 최소화 */
     }
   }
+
   
     /* 카드들 간격/패딩 조정으로 전체 폭 여유 확보 */
     .cards {
