@@ -58,9 +58,10 @@ function bindDataListeners(){
   state.unsubExpenses = db.collection('users').doc(state.user.uid)
     .collection('expenses')
     .where('monthKey','==', mk)
-    .orderBy('amount','desc')
+    .orderBy('amount','desc') // ← 인덱스 없으면 에러 발생. 인덱스 생성했거나, 필요시 이 줄을 지우고 아래 sort만 사용해도 돼요.
     .onSnapshot(snap => {
-      state.expenses = snap.docs.map(d=>({ id: d.id, ...d.data() }));
+      state.expenses = snap.docs.map(d=>({ id: d.id, ...d.data() }))
+        .sort((a,b)=> b.amount - a.amount); // 안전하게 클라이언트 정렬도 유지
       renderCalendar(); renderList(); renderSums();
     });
 
@@ -73,7 +74,7 @@ function bindDataListeners(){
     });
 }
 
-// Add handlers
+// ✅ Add handlers (즉시 반영+DB 저장)
 $('#add').addEventListener('click', async () => {
   if (!state.user) { alert('먼저 로그인해줘'); return; }
   const name = $('#name').value.trim();
@@ -86,13 +87,37 @@ $('#add').addEventListener('click', async () => {
   if (!isFinite(amount) || amount <= 0) return alert('금액을 숫자로 입력해줘');
   if (!['필수','투자','소비'].includes(category)) return alert('카테고리 오류');
 
-  await db.collection('users').doc(state.user.uid)
-    .collection('expenses').add({ name, amount, category, date, monthKey: date.slice(0,7), memo });
+  const mk = date.slice(0,7);
 
+  // 1) 화면에 '즉시' 보이게 임시 항목 추가 (현재 보고 있는 달일 때만)
+  if (mk === monthKey(state.year, state.month)) {
+    const temp = {
+      id: 'temp-' + Math.random().toString(36).slice(2),
+      name, amount, category, date, monthKey: mk, memo
+    };
+    // 위에 orderBy가 있어도 onSnapshot이 오기 전까지는 우리가 직접 정렬
+    state.expenses = [temp, ...state.expenses].sort((a,b)=>b.amount-a.amount);
+    state.selectedDate = date;
+    renderCalendar(); renderList(); renderSums();
+  }
+
+  // 2) DB에 실제 저장 (스냅샷이 오면 위 임시 항목은 서버 데이터로 자동 대체됨)
+  try {
+    await db.collection('users').doc(state.user.uid)
+      .collection('expenses').add({ name, amount, category, date, monthKey: mk, memo });
+  } catch (e) {
+    alert('저장 실패: ' + e.message);
+    // 실패했다면 임시 항목을 제거해 UI와 일치시켜도 됨(선택):
+    state.expenses = state.expenses.filter(x => !String(x.id).startsWith('temp-'));
+    renderCalendar(); renderList(); renderSums();
+    return;
+  }
+
+  // 3) 입력칸 초기화
   $('#name').value = ''; $('#amount').value = ''; $('#memo').value = '';
-  state.selectedDate = date;
 });
 
+// 삭제
 async function onDelete(id){
   if (!state.user) return;
   await db.collection('users').doc(state.user.uid).collection('expenses').doc(id).delete();
