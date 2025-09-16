@@ -220,7 +220,7 @@ function renderCalendar(){
     const cell = document.createElement('div'); cell.className='day';
     const fullDate = ymd(state.year, state.month, d);
     const h = document.createElement('div'); h.className='d'; h.textContent=d; cell.appendChild(h);
-    const total = document.createElement('div'); total.className='total'; total.textContent = totals[d-1] ? fmtKRW(totals[d-1]) : ''; cell.appendChild(total);
+    const total = document.createElement('div'); total.className='total'; total.textContent = totals[d-1] ? totals[d-1].toLocaleString('ko-KR') : ''; cell.appendChild(total);
     if (fullDate === todayStr()) cell.classList.add('today');
     if (fullDate === state.selectedDate) cell.classList.add('selected');
     cell.addEventListener('click', ()=>{ state.selectedDate = fullDate; $('#date').value = fullDate; renderCalendar(); renderList(); });
