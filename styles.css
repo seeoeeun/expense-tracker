@@ -109,7 +109,7 @@ main {
   margin-top: 8px;
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  /* gap: 6px; */
+  gap: 6px;
 }
 
 .dow {
@@ -128,7 +128,7 @@ main {
   padding: 8px;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  /* gap: 6px; */
 }
 
 .day .d {
@@ -921,10 +921,12 @@ body.tab-recurring main {
 }
 
 /* 선택된 날짜 강조(있으면) */
+/*
 .calendar .cell.day.selected {
   border-color: #111;
   box-shadow: 0 0 0 2px #111 inset;
 }
+*/
 
 /* 빈칸 */
 .calendar .cell.empty {
@@ -966,3 +968,138 @@ body.tab-recurring main {
   text-align: left;       /* 혹시 잔여 text-align 있으면 무효화 */
 }
 
+/* 캘린더 날짜 숫자 공통 */
+.cday {
+  position: relative;
+  font-size: 25px;
+  line-height: 1.1;
+  font-weight: 700;
+}
+
+/* 선택된 날짜: 뒤에 동그라미 */
+.cday.is-selected {
+  color: #000; /* 숫자 색을 흰색으로 바꾸면 원 안에서 더 잘 보임 */
+}
+
+.cday.is-selected::after {
+  content: '';
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 34px; height: 34px;        /* 원 크기 */
+  background: #30E48D;
+  border-radius: 50%;
+  z-index: -1;                      /* 숫자 뒤로 */
+}
+
+
+/* 날짜 숫자: 동그라미 배경을 줄 준비 */
+.calendar .cday {
+  /* 기존 네가 쓰던 폰트 크기 유지 */
+  font-size: 25px;
+  line-height: 1;
+  font-weight: 700;
+
+  /* 동그라미를 만들기 위한 레이아웃 */
+  display: inline-flex;            /* 숫자 박스를 “정사각형”으로 */
+  align-items: center;
+  justify-content: center;
+  width: 36px;                     /* 원 지름 */
+  height: 36px;
+  border-radius: 50%;
+  background: transparent;         /* 기본은 투명 */
+  color: inherit;                  /* 기본 글자색 유지 */
+  margin-top: 2px;                 /* 기존 간격 유지 */
+}
+
+/* 선택된 날짜: 초록 원 + 흰색 숫자 */
+.calendar .cday.is-selected {
+  background: #30E48D;
+}
+
+/* 혹시 남아있는 테두리 강조 제거 */
+.calendar .cell.day.selected {
+  border: none !important;
+  box-shadow: none !important;
+}
+
+
+.monthbar {
+  display: grid;
+  grid-template-columns: 40px 1fr 40px; /* 좌측 화살표 / 연월 / 우측 화살표 */
+  align-items: center;  /* ← 핵심! 세로축 가운데 정렬 */
+  gap: 8px;
+  margin: 8px 12px 10px;
+}
+
+.monthlabel {
+  justify-self: center;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  line-height: 1;        /* 텍스트 줄높이도 딱 맞춰주면 더 정확 */
+}
+
+.calnav {
+  justify-self: center;
+  width: 36px; height: 36px;
+  display: flex; align-items: center; justify-content: center; /* ← 버튼 텍스트도 중앙 */
+  background: none;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+  border-radius: 8px;
+}
+
+
+.tdelete {
+  background: #f5f5f5;        /* 밝은 회색 배경 */
+  border: 1px solid #ccc;     /* 테두리 회색 */
+  color: #555;                /* 글자 진한 회색 */
+}
+.tdelete:hover {
+  background: #e0e0e0;        /* hover 시 조금 진하게 */
+}
+
+/* Repeat 탭 카테고리 버튼을 Today 탭의 동그라미와 동일하게 */
+#rCategoryGroup.cat-group { 
+  display: flex; 
+  gap: 10px; 
+  align-items: center; 
+}
+
+/* 기본 형태: Today의 .entrybar .circle 과 동일 */
+#rCategoryGroup .cat-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid #ccc;
+  background: #f2f2f2;      /* 기본 중립 배경 */
+  cursor: pointer;
+  outline: none;
+  padding: 0;
+  line-height: 1;
+  font-size: 0;             /* 버튼 안 '●' 텍스트가 있다면 숨김 */
+}
+
+/* 색상 매핑: Today의 essential/invest/spend 색과 동일 */
+#rCategoryGroup .cat-btn[data-value="필수"] { background: #ff6b6b; } /* 레드 */
+#rCategoryGroup .cat-btn[data-value="투자"] { background: #4dabf7; } /* 블루 */
+#rCategoryGroup .cat-btn[data-value="소비"] { background: #51cf66; } /* 그린 */
+
+/* 선택 상태 강조: Today의 .circle.is-selected 와 동일한 효과 */
+#rCategoryGroup .cat-btn.active {
+  box-shadow: 0 0 0 3px #111 inset;
+  border-color: #111;
+}
+
+/* 접근성(포커스) */
+#rCategoryGroup .cat-btn:focus-visible {
+  outline: 3px solid rgba(0,0,0,0.6);
+  outline-offset: 2px;
+}
+
+/* 모바일에서 살짝 압축 (Today와 동일 톤) */
+@media (max-width: 719px) {
+  #rCategoryGroup .cat-btn { width: 26px; height: 26px; }
+}

@@ -369,6 +369,9 @@ function renderCalendar(){
     dayEl.className = 'cday';
     dayEl.textContent = String(day);             // 큰 날짜 숫자
 
+    // 선택된 날짜면 클래스만 추가
+    dayEl.classList.toggle('is-selected', state.selectedDate === dstr);
+
     const amtEl = document.createElement('div');
     amtEl.className = 'camt';
     // 교체: 캘린더에서는 '원' 제거
@@ -451,7 +454,7 @@ function renderList(){
     // 반복에서 유도된 항목은 삭제 버튼 숨김
     row.appendChild(dot); row.appendChild(name); row.appendChild(amt);
     if (!e._recurring) {
-      const delBtn = document.createElement('button'); delBtn.className='tdelete'; delBtn.textContent='삭제';
+      const delBtn = document.createElement('button'); delBtn.className='tdelete'; delBtn.textContent='Delete';
       delBtn.addEventListener('click', ()=>onDelete(e.id));
       row.appendChild(delBtn);
     }
@@ -589,4 +592,50 @@ function renderTodayList(){
   }
 }
 
+// 반복 탭 카테고리 선택 로직
+let selectedRCategory = '필수'; // 기본값
+
+// 초기 상태(선택): 첫 버튼에 active 주기
+const first = document.querySelector('#rCategoryGroup .cat-btn[data-value="필수"]');
+if (first && !first.classList.contains('active')) first.classList.add('active');
+
+// 클릭 토글
+document.querySelectorAll('#rCategoryGroup .cat-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('#rCategoryGroup .cat-btn')
+      .forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    selectedRCategory = btn.dataset.value;
+  });
+});
+
+
+// rAdd 버튼 로직에서 category 읽을 때 교체
+$('#rAdd').addEventListener('click', async () => {
+  const name = $('#rName').value.trim();
+  const amount = parseInt($('#rAmount').value,10) || 0;
+  const day = parseInt($('#rDay').value,10) || 1;
+  const start = $('#rStart').value; // 'YYYY-MM'
+
+  if (!name || !amount) return alert('이름/금액을 입력하세요');
+
+  const startYear = start ? parseInt(start.split('-')[0],10) : new Date().getFullYear();
+  const startMonth = start ? parseInt(start.split('-')[1],10)-1 : new Date().getMonth();
+  const startYM = start || `${startYear}-${String(startMonth+1).padStart(2,'0')}`;
+
+  await db.collection('users').doc(state.user.uid)
+    .collection('recurring')
+    .add({
+      name, amount,
+      category: selectedRCategory, // 여기서 버튼으로 고른 값 사용
+      day, startYear, startMonth, start: startYM,
+      active: true
+    });
+
+  $('#rName').value = '';
+  $('#rAmount').value = '';
+  $('#rDay').value = '';
+  $('#rStart').value = '';
+  // 선택값 초기화 필요하면 여기도 reset
+});
 

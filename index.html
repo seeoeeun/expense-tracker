@@ -63,11 +63,11 @@
       <div class="row">
         <input id="rName" placeholder="이름">
         <input id="rAmount" type="number" inputmode="decimal" placeholder="금액">
-        <select id="rCategory">
-          <option value="필수">필수</option>
-          <option value="투자">투자</option>
-          <option value="소비">소비</option>
-        </select>
+        <div id="rCategoryGroup" class="cat-group">
+          <button type="button" class="cat-btn" data-value="필수"></button>
+          <button type="button" class="cat-btn" data-value="투자"></button>
+          <button type="button" class="cat-btn" data-value="소비"></button>
+        </div>              
         <input id="rDay" type="number" placeholder="매월 몇 일" min="1" max="31" style="width:120px">
         <input id="rStart" type="month">
         <button id="rAdd" class="primary">등록</button>
