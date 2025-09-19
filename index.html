@@ -3,12 +3,15 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>간단 지출 기록 (동기화)</title>
+  <title>간단 지출 기록</title>
   <meta name="theme-color" content="#111111">
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="apple-touch-icon" href="./icons/icon-192.png">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pretendard@latest/dist/web/variable/pretendardvariable-dynamic-subset.css" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="./styles.css">
   <!-- Firebase CDN (v10) -->
   <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-app-compat.js"></script>
@@ -17,80 +20,105 @@
   <script src="./config.js"></script>
 </head>
 <body>
-  <header>
-    <h1>간단 지출 기록 (동기화)</h1>
-    <div class="toolbar">
-      <button id="login" class="primary">Google로 로그인</button>
-      <button id="logout" class="ghost" style="display:none">로그아웃</button>
-      <span id="userLabel" class="muted"></span>
-    </div>
-    <div class="row" style="margin-top:8px">
-      <input id="name" placeholder="지출 이름">
-      <input id="amount" type="number" inputmode="decimal" placeholder="금액">
-      <select id="category">
-        <option value="필수">필수</option>
-        <option value="투자">투자</option>
-        <option value="소비">소비</option>
-      </select>
-      <input id="date" type="date">
-      <input id="memo" placeholder="메모(선택)">
-      <button id="add" class="primary">추가</button>
-    </div>
-    <div class="row" style="margin-top:8px">
+  <header></header>
+
+  <!-- 기존 main 안쪽 섹션에 id만 붙여주세요 -->
+<main>
+  <div class="cards" id="tab-record">   <!-- 기록 탭 -->
+    <section class="card">
+      <!-- (기존) 입력 폼 + 오늘 지출 목록 영역 -->
+      <!-- 헤더쪽 입력 폼을 여기로 옮기지 않았다면 그대로 둬도 되고,
+           우선은 오늘 지출 목록만 보여주는 영역으로 써도 OK -->
+      <!--h3 style="margin:4px 0 8px">오늘 지출</h3>-->
+      <div id="todayList" class="list"></div>
+    </section>
+  </div>
+
+  <div class="cards" id="tab-calendar" style="display:none;"> <!-- 캘린더 탭 -->
+    <section class="card">
+      <div class="monthbar">
+        <button id="prev" class="calnav" aria-label="Previous month">◀</button>
+        <strong id="monthLabel" class="monthlabel">September 2025</strong>
+        <button id="next" class="calnav" aria-label="Next month">▶</button>
+      </div>      
+      <div class="grid3">
+        <div class="pill" id="sumEssential">필수 0</div>
+        <div class="pill" id="sumInvest">투자 0</div>
+        <div class="pill" id="sumSpend">소비 0</div>
+      </div>
+      <div class="calendar" id="calendarHead"></div>
+      <div class="calendar" id="calendar"></div>
+    </section>
+
+    <section class="card">
+      <h3 style="margin:4px 0 8px">선택한 날짜 내역</h3>
+      <div id="selectedDateLabel" class="muted"></div>
+      <div class="list" id="list"></div>
+    </section>
+  </div>
+
+  <div class="cards" id="tab-recurring" style="display:none;"> <!-- 반복 탭 -->
+    <section class="card" style="grid-column: 1 / -1;">
+      <h3 style="margin:4px 0 8px">반복 지출</h3>
+      <div class="row">
+        <input id="rName" placeholder="이름">
+        <input id="rAmount" type="number" inputmode="decimal" placeholder="금액">
+        <select id="rCategory">
+          <option value="필수">필수</option>
+          <option value="투자">투자</option>
+          <option value="소비">소비</option>
+        </select>
+        <input id="rDay" type="number" placeholder="매월 몇 일" min="1" max="31" style="width:120px">
+        <input id="rStart" type="month">
+        <button id="rAdd" class="primary">등록</button>
+      </div>
+      <div class="help" style="margin-top:6px">매월 지정한 일자에 자동 반영. 29·30·31일이 없는 달은 말일에 반영.</div>
+      <div class="hr"></div>
+      <div class="list" id="rList"></div>
+    </section>
+  </div>
+  <div class="cards" id="tab-settings" style="display:none;">
+    <section class="card">
+      <h1 style="margin:0 0 8px">간단 지출 기록</h1>
+      <div class="toolbar" style="margin-bottom:8px">
+        <button id="login" class="primary">Google로 로그인</button>
+        <button id="logout" class="ghost" style="display:none">로그아웃</button>
+        <span id="userLabel" class="muted"></span>
+      </div>
       <div class="help">데이터는 로그인한 계정의 클라우드(Firestore)에 저장됩니다.</div>
+    </section>
+  </div>  
+</main>
+
+<div id="entryBar" class="entrybar">
+  <div class="row" style="margin-top:8px">
+    <input id="name" type="name" placeholder="Name">
+    <input id="amount" type="number" inputmode="decimal" placeholder="Amount">
+    <!-- <select id="category">
+      <option value="필수">필수</option>
+      <option value="투자">투자</option>
+      <option value="소비">소비</option>
+    </select> -->
+    <!-- 동그라미 카테고리 선택 -->
+    <div class="category-picker" role="radiogroup" aria-label="카테고리">
+      <button type="button" class="circle essential is-selected" data-value="필수" aria-pressed="true" aria-label="필수"></button>
+      <button type="button" class="circle invest"    data-value="투자" aria-pressed="false" aria-label="투자"></button>
+      <button type="button" class="circle spend"     data-value="소비" aria-pressed="false" aria-label="소비"></button>
     </div>
-  </header>
+    <input id="date" type="date">
+    <input id="memo" placeholder="Memo(Optional)">
+    <button id="add" class="primary" type="button">Add</button>
+  </div>
+</div>
 
-  <main>
-    <div class="cards">
-      <section class="card">
-        <div class="monthbar">
-          <div>
-            <button id="prev">이전 달</button>
-            <strong id="monthLabel"></strong>
-            <button id="next">다음 달</button>
-          </div>
-          <div class="actions">
-            <button id="export">내보내기</button>
-            <input id="importFile" type="file" accept="application/json" style="display:none">
-            <button id="importBtn" class="ghost">가져오기</button>
-          </div>
-        </div>
-        <div class="grid3">
-          <div class="pill" id="sumEssential">필수 0</div>
-          <div class="pill" id="sumInvest">투자 0</div>
-          <div class="pill" id="sumSpend">소비 0</div>
-        </div>
-        <div class="calendar" id="calendarHead"></div>
-        <div class="calendar" id="calendar"></div>
-      </section>
+<!-- 🔻 하단 고정 탭바 추가 (body 끝쪽에 배치) -->
+<nav class="tabbar" aria-label="하단 탭">
+  <button class="tablink active" data-tab="record" aria-current="page">Today</button>
+  <button class="tablink" data-tab="calendar">Calendar</button>
+  <button class="tablink" data-tab="recurring">Repeat</button>
+  <button class="tablink" data-tab="settings">Settings</button> <!-- ← 추가 -->
+</nav>
 
-      <section class="card">
-        <h3 style="margin:4px 0 8px">선택한 날짜 내역</h3>
-        <div id="selectedDateLabel" class="muted"></div>
-        <div class="list" id="list"></div>
-      </section>
-
-      <section class="card" style="grid-column: 1 / -1;">
-        <h3 style="margin:4px 0 8px">반복 지출</h3>
-        <div class="row">
-          <input id="rName" placeholder="이름">
-          <input id="rAmount" type="number" inputmode="decimal" placeholder="금액">
-          <select id="rCategory">
-            <option value="필수">필수</option>
-            <option value="투자">투자</option>
-            <option value="소비">소비</option>
-          </select>
-          <input id="rDay" type="number" placeholder="매월 몇 일" min="1" max="31" style="width:120px">
-          <input id="rStart" type="month">
-          <button id="rAdd" class="primary">등록</button>
-        </div>
-        <div class="help" style="margin-top:6px">매월 지정한 일자에 자동 반영. 29·30·31일이 없는 달은 말일에 반영.</div>
-        <div class="hr"></div>
-        <div class="list" id="rList"></div>
-      </section>
-    </div>
-  </main>
 
   <script src="./app.js"></script>
 </body>
