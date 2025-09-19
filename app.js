@@ -150,9 +150,10 @@ $('#rAdd').addEventListener('click', async () => {
 
   const startYear = start ? parseInt(start.split('-')[0],10) : new Date().getFullYear();
   const startMonth = start ? parseInt(start.split('-')[1],10)-1 : new Date().getMonth();
+  const startYM = start || `${startYear}-${String(startMonth+1).padStart(2,'0')}`;
 
   await db.collection('users').doc(state.user.uid)
-    .collection('recurring').add({ name, amount, category, day, startYear, startMonth, active: true });
+    .collection('recurring').add({ name, amount, category, day, startYear, startMonth, start: startYM, active: true });
 
   $('#rName').value=''; $('#rAmount').value=''; $('#rDay').value=''; $('#rStart').value='';
 });
@@ -280,6 +281,52 @@ function renderCalendarHead(){
 }
 
 
+
+// 'YYYY-MM' -> {y,m}
+function parseYM(ym){ const [y,m] = ym.split('-').map(n=>parseInt(n,10)); return {y, m}; }
+
+// 해당 월의 말일
+function lastDateOf(year, month){ return new Date(year, month+1, 0).getDate(); }
+
+
+function recurringSumForDate(dateStr){
+  if (!state.recurring || state.recurring.length === 0) return 0;
+
+  const [y, m, d] = dateStr.split('-').map(n=>parseInt(n,10));
+  const last = lastDateOf(y, m-1);
+
+  let sum = 0;
+  for (const r of state.recurring){
+    const amt = Number(r.amount)||0;
+    if (!amt) continue;
+
+    const startYM = getRecurringStartYM(r);
+    if (!startYM) continue;
+    const {y: sy, m: sm} = parseYM(startYM);
+    const afterStart = (y > sy) || (y === sy && m >= sm);
+    if (!afterStart) continue;
+
+    const day = Math.min(Number(r.day)||1, last); // 29/30/31 → 말일 처리
+    if (d === day) sum += amt;
+  }
+  return sum;
+}
+
+
+
+// 반복 항목 시작월을 'YYYY-MM'로 통일해서 반환
+function getRecurringStartYM(r){
+  if (r.start) return r.start; // 이미 문자열이면 그대로
+  if (Number.isInteger(r.startYear) && Number.isInteger(r.startMonth)) {
+    const y = r.startYear;
+    const m = r.startMonth + 1; // 저장은 0-based였음
+    return `${y}-${String(m).padStart(2,'0')}`;
+  }
+  return null;
+}
+
+
+
 function renderCalendar(){
   const grid = $('#calendar');
   if (!grid) return;
@@ -304,9 +351,14 @@ function renderCalendar(){
     const dstr = `${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
 
     // 해당 날짜 합계 계산
-    const sum = state.expenses
-      .filter(e => e.date === dstr)
-      .reduce((a,b) => a + (Number(b.amount)||0), 0);
+    const sumExpense = state.expenses
+    .filter(e => e.date === dstr)
+    .reduce((a,b)=> a + (Number(b.amount)||0), 0);
+  
+    const sumRecurring = recurringSumForDate(dstr);
+    
+    const sum = sumExpense + sumRecurring; // ← 총합
+  
 
     // 셀 구성
     const cell = document.createElement('div');
@@ -336,18 +388,52 @@ function renderCalendar(){
   }
 }
 
+// 반복 지출 삭제 (Firestore)
+async function deleteRecurring(id){
+  if (!state.user || !id) return;
+  try {
+    await db.collection('users').doc(state.user.uid)
+      .collection('recurring').doc(id).delete();
+  } catch (e) {
+    console.error('deleteRecurring failed:', e);
+    alert('반복 지출 삭제 중 오류가 발생했어요.');
+  }
+}
+
 
 function renderList(){
   const box = $('#list');
   if (!box) return;
 
   const sel = state.selectedDate; // 'YYYY-MM-DD'
-  const list = state.expenses
-    .filter(e => e.date === sel)
-    .sort((a,b) => b.amount - a.amount);
+
+  // 일반 지출
+  const listBase = state.expenses.filter(e => e.date === sel);
+
+  // 반복 지출 → 당일에 해당하는 것만 가짜 아이템으로 생성
+  const recSumToday = [];
+  const [y,m,d] = sel.split('-').map(n=>parseInt(n,10));
+  const last = lastDateOf(y, m-1);
+  for (const r of state.recurring || []){
+    const startYM = getRecurringStartYM(r);
+    if (!startYM) { /* 시작월 미정이면 스킵 */ continue; }
+    const {y: sy, m: sm} = parseYM(startYM);    
+    const afterStart = (y > sy) || (y === sy && m >= sm);
+    const day = Math.min(Number(r.day)||1, last);
+    if (afterStart && d === day){
+      recSumToday.push({
+        id: `rec-${r.id}-${sel}`,
+        name: r.name || '(반복 지출)',
+        amount: Number(r.amount)||0,
+        category: r.category || '소비',
+        _recurring: true
+      });
+    }
+  }
+
+  const list = [...listBase, ...recSumToday].sort((a,b)=> (b.amount||0)-(a.amount||0));
 
   box.innerHTML = '';
-
   if (list.length === 0) {
     const empty = document.createElement('div');
     empty.className = 'empty';
@@ -357,30 +443,18 @@ function renderList(){
   }
 
   for (const e of list) {
-    const row = document.createElement('div');
-    row.className = 'trow';
+    const row = document.createElement('div'); row.className = 'trow';
+    const dot = document.createElement('span'); dot.className = 'dot ' + catToClass(e.category);
+    const name = document.createElement('div'); name.className = 'tname'; name.textContent = e.name;
+    const amt = document.createElement('div'); amt.className = 'tamt'; amt.textContent = fmtKRW(e.amount);
 
-    const dot = document.createElement('span');
-    dot.className = 'dot ' + catToClass(e.category);
-
-    const name = document.createElement('div');
-    name.className = 'tname';
-    name.textContent = e.name;
-
-    const amt = document.createElement('div');
-    amt.className = 'tamt';
-    amt.textContent = fmtKRW(e.amount);
-
-    const delBtn = document.createElement('button');
-    delBtn.className = 'tdelete';
-    delBtn.textContent = 'Delete';
-    delBtn.addEventListener('click', ()=>onDelete(e.id));
-
-    row.appendChild(dot);
-    row.appendChild(name);
-    row.appendChild(amt);
-    row.appendChild(delBtn);
-
+    // 반복에서 유도된 항목은 삭제 버튼 숨김
+    row.appendChild(dot); row.appendChild(name); row.appendChild(amt);
+    if (!e._recurring) {
+      const delBtn = document.createElement('button'); delBtn.className='tdelete'; delBtn.textContent='삭제';
+      delBtn.addEventListener('click', ()=>onDelete(e.id));
+      row.appendChild(delBtn);
+    }
     box.appendChild(row);
   }
 }
@@ -414,6 +488,7 @@ function renderRecurring(){
     name.className = 'tname';
     // 예: "넷플릭스 · 매월 15일 시작 2025-03"
     const day = r.day ? ` · 매월 ${r.day}일` : '';
+    const startYM = getRecurringStartYM(r);
     const start = r.start ? ` 시작 ${r.start}` : '';
     name.textContent = `${r.name || ''}${day}${start}`.trim();
 
@@ -424,14 +499,10 @@ function renderRecurring(){
     const delBtn = document.createElement('button');
     delBtn.className = 'tdelete';
     delBtn.textContent = 'Delete';
-    delBtn.addEventListener('click', ()=>{
-      // 프로젝트에 따라 함수명이 다를 수 있어 안전 처리
-      const fn = (typeof onDeleteRecurring === 'function') ? onDeleteRecurring
-               : (typeof deleteRecurring === 'function') ? deleteRecurring
-               : null;
-      if (fn) fn(r.id);
-      else if (typeof onDelete === 'function') onDelete(r.id); // 최후 폴백
+    delBtn.addEventListener('click', () => {
+      deleteRecurring(r.id);
     });
+    
 
     row.appendChild(dot);
     row.appendChild(name);
