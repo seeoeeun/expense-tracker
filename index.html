@@ -51,28 +51,46 @@
     </section>
 
     <section class="card">
-      <h3 style="margin:4px 0 8px">선택한 날짜 내역</h3>
+      <h3 style="margin:4px 0 8px">This Day</h3>
       <div id="selectedDateLabel" class="muted"></div>
       <div class="list" id="list"></div>
     </section>
+        <!-- ⬇️ 달력 탭: 선택한 날짜로 지출 추가 -->
+        <section class="card">
+          <h3 style="margin:4px 0 8px">Add One</h3>
+          <div class="row" id="calEntry">
+            <input id="cName" placeholder="Name">
+            <input id="cAmount" type="number" inputmode="decimal" placeholder="Amount">
+            <!-- 동일한 동그라미 카테고리 사용 (상태는 공유) -->
+            <div class="category-picker" role="radiogroup" aria-label="카테고리">
+              <button type="button" class="circle essential is-selected" data-value="필수" aria-pressed="true" aria-label="필수"></button>
+              <button type="button" class="circle invest"    data-value="투자" aria-pressed="false" aria-label="투자"></button>
+              <button type="button" class="circle spend"     data-value="소비" aria-pressed="false" aria-label="소비"></button>
+            </div>
+            <input id="cDate" type="date">   <!-- 달력에서 고른 날짜가 자동 반영됨 -->
+            <input id="cMemo" placeholder="Memo(Optional)">
+            <button id="addCal" class="primary" type="button">Add</button>
+          </div>
+          <!--div class="help" style="margin-top:6px">달력에서 날짜를 먼저 누르면 위 날짜 입력에 자동 반영돼요.</div>-->
+        </section>    
   </div>
 
   <div class="cards" id="tab-recurring" style="display:none;"> <!-- 반복 탭 -->
     <section class="card" style="grid-column: 1 / -1;">
-      <h3 style="margin:4px 0 8px">반복 지출</h3>
+      <h3 style="margin:4px 0 8px">Repeat</h3>
       <div class="row">
-        <input id="rName" placeholder="이름">
-        <input id="rAmount" type="number" inputmode="decimal" placeholder="금액">
+        <input id="rName" placeholder="Name">
+        <input id="rAmount" type="number" inputmode="decimal" placeholder="Amount">
         <div id="rCategoryGroup" class="cat-group">
           <button type="button" class="cat-btn" data-value="필수"></button>
           <button type="button" class="cat-btn" data-value="투자"></button>
           <button type="button" class="cat-btn" data-value="소비"></button>
         </div>              
-        <input id="rDay" type="number" placeholder="매월 몇 일" min="1" max="31" style="width:120px">
+        <input id="rDay" type="number" placeholder="Date" min="1" max="31" style="width:120px">
         <input id="rStart" type="month">
-        <button id="rAdd" class="primary">등록</button>
+        <button id="rAdd" class="primary">Add</button>
       </div>
-      <div class="help" style="margin-top:6px">매월 지정한 일자에 자동 반영. 29·30·31일이 없는 달은 말일에 반영.</div>
+      <!--div class="help" style="margin-top:6px">매월 지정한 일자에 자동 반영. 29·30·31일이 없는 달은 말일에 반영.</div>-->
       <div class="hr"></div>
       <div class="list" id="rList"></div>
     </section>
@@ -85,7 +103,7 @@
         <button id="logout" class="ghost" style="display:none">로그아웃</button>
         <span id="userLabel" class="muted"></span>
       </div>
-      <div class="help">데이터는 로그인한 계정의 클라우드(Firestore)에 저장됩니다.</div>
+      <!--div class="help">데이터는 로그인한 계정의 클라우드(Firestore)에 저장됩니다.</div>-->
     </section>
   </div>  
 </main>

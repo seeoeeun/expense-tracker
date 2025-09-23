@@ -467,7 +467,7 @@ main {
 
 /* === 하단 고정 입력바 최종 규칙(기존 sticky 무효화) === */
 :root {
-  --tabbar-h: 55px;   /* 실제 하단 탭바 높이에 맞춰 조정 (예: 60px) */
+  --tabbar-h: 56px;   /* 실제 하단 탭바 높이에 맞춰 조정 (예: 60px) */
   --entrybar-h: 224px; /* 입력바 대략 높이 (필요시 72px 등) */
 }
 
@@ -892,7 +892,7 @@ body.tab-recurring main {
 
 /* 요일 헤더 */
 .calendar .cell.head {
-  background: #f7f7f8;
+  background: transparent;
   border: none;
   font-weight: 700;
   color: #555;
@@ -1102,4 +1102,64 @@ body.tab-recurring main {
 /* 모바일에서 살짝 압축 (Today와 동일 톤) */
 @media (max-width: 719px) {
   #rCategoryGroup .cat-btn { width: 26px; height: 26px; }
+}
+
+body.tab-record #date:disabled { opacity: .6; cursor: not-allowed; }
+
+
+/* 캘린더 탭 전용 category-picker도 동일하게 적용 */
+#calEntry .category-picker {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+#calEntry .circle {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid #ccc;
+  background: #f2f2f2;
+  cursor: pointer;
+  outline: none;
+}
+
+#calEntry .circle.essential { background: #ff6b6b; }
+#calEntry .circle.invest    { background: #4dabf7; }
+#calEntry .circle.spend     { background: #51cf66; }
+
+#calEntry .circle.is-selected {
+  box-shadow: 0 0 0 3px #111 inset;
+  border-color: #111;
+}
+
+#calEntry .circle:focus-visible {
+  outline: 3px solid rgba(0,0,0,0.6);
+  outline-offset: 2px;
+}
+
+/* 모바일에서 조금 작게 */
+@media (max-width: 719px) {
+  #calEntry .circle { width: 26px; height: 26px; }
+}
+
+/* 캘린더 탭 카드 맨 아래에 여유 주기 */
+body.tab-calendar #tab-calendar .card:last-child {
+  margin-bottom: 24px; /* 원하는 만큼 조정: 16~32px 정도 추천 */
+}
+
+/* 카테고리 필터 활성 표시 */
+.pill.active {
+  background: #111;
+  color: #fff;
+}
+
+/* 캘린더 바디 행 높이 고정 */
+#calendar {
+  grid-auto-rows: 86px;  /* 필요하면 72~96px 사이로 조정 */
+}
+
+/* 반응형(모바일에서 조금 낮춰도 OK) */
+@media (max-width: 719px) {
+  #calendar { grid-auto-rows: 72px; }
 }

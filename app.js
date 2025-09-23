@@ -26,6 +26,7 @@ const state = {
   recurring: [],
   activeTab: 'record', // ← 추가
   selectedCategory: '필수',
+  filterCategory: null, // ⬅️ null=전체, '필수'|'투자'|'소비' 중 하나
 };
 
 $('#date').value = state.selectedDate;
@@ -92,7 +93,7 @@ $('#add').addEventListener('click', async () => {
   const name = $('#name').value.trim();
   const amount = parseFloat($('#amount').value);
   const category = state.selectedCategory || '필수';
-  const date = $('#date').value || todayStr();
+  const date = todayStr();
   const memo = $('#memo').value.trim();
 
   if (!name) return alert('지출 이름을 입력해줘');
@@ -127,6 +128,49 @@ $('#add').addEventListener('click', async () => {
 
   // 3) 입력칸 초기화
   $('#name').value = ''; $('#amount').value = ''; $('#memo').value = '';
+});
+
+// 🔻 여기에 이어서 캘린더 탭 전용 Add 핸들러 추가
+$('#addCal').addEventListener('click', async () => {
+  if (!state.user) { alert('먼저 로그인해줘'); return; }
+
+  const name = $('#cName').value.trim();
+  const amount = parseFloat($('#cAmount').value);
+  const category = state.selectedCategory || '필수';
+  const date = $('#cDate').value || state.selectedDate || todayStr();
+  const memo = ($('#cMemo')?.value || '').trim();
+
+  if (!name) return alert('지출 이름을 입력해줘');
+  if (!isFinite(amount) || amount <= 0) return alert('금액을 숫자로 입력해줘');
+  if (!['필수','투자','소비'].includes(category)) return alert('카테고리 오류');
+
+  const mk = date.slice(0,7);
+
+  // 1) 현재 보고 있는 달이면 UI에 즉시 추가
+  if (mk === monthKey(state.year, state.month)) {
+    const temp = { id: 'temp-' + Math.random().toString(36).slice(2),
+      name, amount, category, date, monthKey: mk, memo };
+    state.expenses = [temp, ...state.expenses].sort((a,b)=>b.amount-a.amount);
+    state.selectedDate = date;
+    renderCalendar(); renderList(); renderSums();
+  }
+
+  // 2) Firestore 저장
+  try {
+    await db.collection('users').doc(state.user.uid)
+      .collection('expenses')
+      .add({ name, amount, category, date, monthKey: mk, memo });
+  } catch (e) {
+    alert('저장 실패: ' + e.message);
+    state.expenses = state.expenses.filter(x => !String(x.id).startsWith('temp-'));
+    renderCalendar(); renderList(); renderSums();
+    return;
+  }
+
+  // 3) 입력칸 초기화
+  $('#cName').value = '';
+  $('#cAmount').value = '';
+  if ($('#cMemo')) $('#cMemo').value = '';
 });
 
 // 삭제
@@ -179,6 +223,7 @@ function changeMonth(delta){
 // Rendering
 function render(){
   renderMonthLabel();
+  renderCalendarHead();   // ⬅️ 요일 헤더 호출 추가
   renderCalendar();
   renderList();
   renderRecurring();
@@ -236,9 +281,35 @@ function setActiveTab(tab) {
   const entry = document.getElementById('entryBar');
   if (entry) entry.style.display = (tab === 'record') ? '' : 'none';
 
+  // ⬇️ 추가: 입력 날짜 제어
+  const dateInput = $('#date');
+  if (tab === 'record') {
+    if (dateInput) {
+      dateInput.value = todayStr();
+      dateInput.setAttribute('disabled', 'disabled');  // Today에서는 오늘만
+      dateInput.title = '투데이 탭에서는 오늘만 입력할 수 있어요';
+    }
+  } else {
+    if (dateInput) {
+      dateInput.removeAttribute('disabled');
+    }
+    const cDate = $('#cDate');
+    if (cDate) cDate.value = state.selectedDate; // 캘린더 폼에 선택 날짜 반영
+  }
+
   // 🔻 여기에 body class 토글 추가
   document.body.classList.remove('tab-record','tab-calendar','tab-recurring','tab-settings');
   document.body.classList.add(`tab-${tab}`);
+
+  if (tab === 'record') {
+    renderTodayList();
+  } else if (tab === 'calendar') {
+    renderMonthLabel(); renderCalendar(); renderList(); renderSums();
+    const cDate = $('#cDate');
+    if (cDate) cDate.value = state.selectedDate;
+  } else if (tab === 'recurring') {
+    renderRecurring();
+  }
 }
 
 // 탭 버튼 이벤트 바인딩 (한 번만)
@@ -248,6 +319,26 @@ document.querySelectorAll('.tablink').forEach(btn => {
 
 // 앱 시작 시 기본 탭
 setActiveTab(state.activeTab);
+
+
+// 카테고리 필터 토글: pill 클릭 → 해당 카테고리만 달력에 표시
+['sumEssential','sumInvest','sumSpend'].forEach(id => {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.style.cursor = 'pointer';
+  el.addEventListener('click', () => {
+    const map = { sumEssential: '필수', sumInvest: '투자', sumSpend: '소비' };
+    const cat = map[id];
+    // 같은 걸 다시 누르면 전체보기로 해제
+    state.filterCategory = (state.filterCategory === cat) ? null : cat;
+    // 활성 pill 표시 업데이트
+    document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+    if (state.filterCategory) el.classList.add('active');
+    // 달력/리스트/합계 다시 그리기
+    renderMonthLabel(); renderCalendarHead(); renderCalendar(); renderList(); renderSums();
+  });
+});
+
 
 
 // 2-1) 영어 월 이름 상수
@@ -289,9 +380,8 @@ function parseYM(ym){ const [y,m] = ym.split('-').map(n=>parseInt(n,10)); return
 function lastDateOf(year, month){ return new Date(year, month+1, 0).getDate(); }
 
 
-function recurringSumForDate(dateStr){
+function recurringSumForDate(dateStr, filterCat = null){
   if (!state.recurring || state.recurring.length === 0) return 0;
-
   const [y, m, d] = dateStr.split('-').map(n=>parseInt(n,10));
   const last = lastDateOf(y, m-1);
 
@@ -306,12 +396,17 @@ function recurringSumForDate(dateStr){
     const afterStart = (y > sy) || (y === sy && m >= sm);
     if (!afterStart) continue;
 
-    const day = Math.min(Number(r.day)||1, last); // 29/30/31 → 말일 처리
-    if (d === day) sum += amt;
+    const day = Math.min(Number(r.day)||1, last);
+    if (d !== day) continue;
+
+    // 카테고리 필터 적용
+    const rcat = r.category || '소비';
+    if (filterCat && rcat !== filterCat) continue;
+
+    sum += amt;
   }
   return sum;
 }
-
 
 
 // 반복 항목 시작월을 'YYYY-MM'로 통일해서 반환
@@ -353,12 +448,13 @@ function renderCalendar(){
     // 해당 날짜 합계 계산
     const sumExpense = state.expenses
     .filter(e => e.date === dstr)
+    .filter(e => !state.filterCategory || e.category === state.filterCategory)
     .reduce((a,b)=> a + (Number(b.amount)||0), 0);
   
-    const sumRecurring = recurringSumForDate(dstr);
-    
-    const sum = sumExpense + sumRecurring; // ← 총합
+    // recurring도 필터 반영하도록 함수에 카테고리 전달
+    const sumRecurring = recurringSumForDate(dstr, state.filterCategory);
   
+    const sum = sumExpense + sumRecurring;
 
     // 셀 구성
     const cell = document.createElement('div');
@@ -375,7 +471,7 @@ function renderCalendar(){
     const amtEl = document.createElement('div');
     amtEl.className = 'camt';
     // 교체: 캘린더에서는 '원' 제거
-    amtEl.textContent = sum ? fmtKRW(sum).replace(/원$/, '') : '';
+    amtEl.textContent = sum ? fmtKRW(sum).replace(/원$/, '') : '\u00A0'; // nbsp
 
     cell.appendChild(dayEl);
     cell.appendChild(amtEl);
@@ -383,8 +479,10 @@ function renderCalendar(){
     // 클릭 시 선택 날짜 변경
     cell.addEventListener('click', ()=>{
       state.selectedDate = dstr;
+      const cDateEl = $('#cDate');        // ⬅️ 추가
+      if (cDateEl) cDateEl.value = dstr;  // ⬅️ 추가
       renderCalendar();
-      renderList(); // 선택한 날짜 내역 갱신
+      renderList();
     });
 
     grid.appendChild(cell);
@@ -409,6 +507,8 @@ function renderList(){
   if (!box) return;
 
   const sel = state.selectedDate; // 'YYYY-MM-DD'
+  const lab = $('#selectedDateLabel');   // ⬅️ 추가
+  if (lab) lab.textContent = sel;        // ⬅️ 추가
 
   // 일반 지출
   const listBase = state.expenses.filter(e => e.date === sel);
@@ -440,7 +540,7 @@ function renderList(){
   if (list.length === 0) {
     const empty = document.createElement('div');
     empty.className = 'empty';
-    empty.textContent = '선택한 날짜의 내역이 없습니다';
+    empty.textContent = 'Nothing here :o';
     box.appendChild(empty);
     return;
   }
@@ -475,7 +575,7 @@ function renderRecurring(){
   if (list.length === 0) {
     const empty = document.createElement('div');
     empty.className = 'empty';
-    empty.textContent = '등록된 반복 지출이 없습니다';
+    empty.textContent = 'Nothing here :o';
     box.appendChild(empty);
     return;
   }
