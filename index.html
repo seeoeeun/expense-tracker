@@ -138,6 +138,52 @@
 </nav>
 
 
-  <script src="./app.js"></script>
+<!-- Edit Bottom Sheet -->
+<div id="editSheet" class="sheet" aria-hidden="true">
+  <div class="sheet__scrim" data-sheet-close></div>
+  <div class="sheet__panel" role="dialog" aria-modal="true" aria-labelledby="editTitle">
+    <div class="sheet__handle"></div>
+
+    <button id="eCancel" type="button" class="ghost" data-sheet-close>
+      <img src="https://i.ibb.co/8LXbPYst/Frame-1-1.png" alt="닫기" />
+    </button>
+
+    <h3 id="editTitle" class="sheet__title">Edit Expense</h3>
+
+    <form id="editForm" class="sheet__form" novalidate>
+      <input type="hidden" id="eId">
+
+      <div class="row">
+        <input id="eName" placeholder="Name">
+        <input id="eAmount" type="number" inputmode="decimal" placeholder="Amount">
+      </div>
+
+      <div class="row">
+        <!-- 동일한 원형 카테고리 UI (모달 전용) -->
+        <div id="eCategoryGroup" class="category-picker" role="radiogroup" aria-label="카테고리">
+          <button type="button" class="circle essential" data-value="필수" aria-pressed="false" aria-label="필수"></button>
+          <button type="button" class="circle invest"    data-value="투자" aria-pressed="false" aria-label="투자"></button>
+          <button type="button" class="circle spend"     data-value="소비" aria-pressed="false" aria-label="소비"></button>
+        </div>
+
+        <input id="eDate" type="date">
+      </div>
+
+      <div class="row">
+        <input id="eMemo" placeholder="Memo(Optional)" />
+      </div>
+
+      <div class="row">
+        <button id="eSave" class="primary" type="submit">Save</button>
+        <button id="eDelete" type="button"></button>
+      </div>
+
+      <div id="eHelp" class="help" style="display:none">반복 항목에서 유도된 가상 내역은 여기서 수정할 수 없습니다. ‘Repeat’ 탭에서 원본을 편집하세요.</div>
+    </form>
+  </div>
+</div>
+
+<script src="./app.js"></script>
+
 </body>
 </html>

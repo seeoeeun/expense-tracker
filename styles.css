@@ -4,10 +4,10 @@
 
 body {
   margin: 0;
-  font-family: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont,
-               "Segoe UI", Roboto, "Noto Sans KR", "Apple SD Gothic Neo",
-               "Apple Color Emoji", "Segoe UI Emoji", sans-serif;
-  background: #30E48D;
+  font-family: "Pretendard Variable", Pretendard, -apple-system,
+    BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans KR",
+    "Apple SD Gothic Neo", "Apple Color Emoji", "Segoe UI Emoji", sans-serif;
+  background: #30e48d;
   color: #222;
 }
 
@@ -162,7 +162,7 @@ main {
 
 .monthlabel {
   justify-self: center;
-  font-size: 18px;       /* 필요하면 20px로 키워도 OK */
+  font-size: 18px; /* 필요하면 20px로 키워도 OK */
   font-weight: 700;
   letter-spacing: 0.2px; /* 살짝 또렷하게 */
 }
@@ -170,7 +170,8 @@ main {
 /* 좌우 삼각형 아이콘 버튼 */
 .calnav {
   justify-self: center;
-  width: 36px; height: 36px;        /* 터치 영역 확보 */
+  width: 36px;
+  height: 36px; /* 터치 영역 확보 */
   line-height: 36px;
   text-align: center;
   background: none;
@@ -179,14 +180,20 @@ main {
   cursor: pointer;
   border-radius: 8px;
 }
-.calnav:active { transform: scale(0.98); }
-.calnav:focus-visible { outline: 2px solid rgba(0,0,0,0.4); outline-offset: 2px; }
-
-/* 라이트한 호버(데스크톱) */
-@media (hover:hover) {
-  .calnav:hover { background: #f2f2f2; }
+.calnav:active {
+  transform: scale(0.98);
+}
+.calnav:focus-visible {
+  outline: 2px solid rgba(0, 0, 0, 0.4);
+  outline-offset: 2px;
 }
 
+/* 라이트한 호버(데스크톱) */
+@media (hover: hover) {
+  .calnav:hover {
+    background: #f2f2f2;
+  }
+}
 
 .monthbar .actions {
   display: flex;
@@ -269,109 +276,107 @@ main {
 /* =========================
    레이아웃 안전장치 (Overflow 방지)
    ========================= */
-   .cards {
-    /* 모바일 기본: 1열 */
-    grid-template-columns: 1fr;
-  }
-  
-  /* 캘린더 그리드가 부모 폭을 넘지 않도록 */
-  .calendar {
-    grid-template-columns: repeat(7, minmax(0, 1fr));
-    width: 100%;
-  }
-  
-  /* 카드 안에서 내용이 넘칠 때 끊어지지 않고 줄바꿈 */
-  .card {
-    overflow: hidden;        /* 내부 스크롤/넘침 방지 */
-    word-break: break-word;  /* 긴 단어/숫자 줄바꿈 */
-  }
-  
-  /* 각 날짜 셀도 내용이 가로로 밀리지 않도록 */
-  .day {
-    min-width: 0;
-  }
-  
-  /* =========================
+.cards {
+  /* 모바일 기본: 1열 */
+  grid-template-columns: 1fr;
+}
+
+/* 캘린더 그리드가 부모 폭을 넘지 않도록 */
+.calendar {
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  width: 100%;
+}
+
+/* 카드 안에서 내용이 넘칠 때 끊어지지 않고 줄바꿈 */
+.card {
+  overflow: hidden; /* 내부 스크롤/넘침 방지 */
+  word-break: break-word; /* 긴 단어/숫자 줄바꿈 */
+}
+
+/* 각 날짜 셀도 내용이 가로로 밀리지 않도록 */
+.day {
+  min-width: 0;
+}
+
+/* =========================
      모바일 전용 (≤ 719px)
      ========================= */
 @media (max-width: 719px) {
-    .day {
-      /* border: 1px solid #ddd; */  /* 테두리는 살리되 */
-      border-radius: 0;         /* 둥글게 → 네모 */
-      padding: 0;               /* 여백 제거 */
-      min-height: 60px;         /* 전체 높이도 줄이기 */
-    }
-  
-    .day .d {
-      font-size: 11px;
-      margin: 2px;              /* 날짜 숫자는 살짝 띄우기 */
-    }
-  
-    .day .total {
-      font-size: 9px;
-      margin: 2px;              /* 합계도 여백 최소화 */
-      letter-spacing: -0.5px;
-    }
+  .day {
+    /* border: 1px solid #ddd; */ /* 테두리는 살리되 */
+    border-radius: 0; /* 둥글게 → 네모 */
+    padding: 0; /* 여백 제거 */
+    min-height: 60px; /* 전체 높이도 줄이기 */
   }
 
-  
-    /* 카드들 간격/패딩 조정으로 전체 폭 여유 확보 */
-    .cards {
-      gap: 10px;
-    }
-    .card {
-      padding: 10px;
-    }
-  
-    /* 입력창 폭 최적화 */
-    input[type="number"] {
-      width: 110px;
-    }
-    input[type="date"] {
-      width: 140px;
-    }
+  .day .d {
+    font-size: 11px;
+    margin: 2px; /* 날짜 숫자는 살짝 띄우기 */
+  }
 
-  
-  /* =========================
+  .day .total {
+    font-size: 9px;
+    margin: 2px; /* 합계도 여백 최소화 */
+    letter-spacing: -0.5px;
+  }
+}
+
+/* 카드들 간격/패딩 조정으로 전체 폭 여유 확보 */
+.cards {
+  gap: 10px;
+}
+.card {
+  padding: 10px;
+}
+
+/* 입력창 폭 최적화 */
+input[type="number"] {
+  width: 110px;
+}
+input[type="date"] {
+  width: 140px;
+}
+
+/* =========================
      태블릿 (720px ~ 1023px)
      ========================= */
-  @media (min-width: 720px) and (max-width: 1023px) {
-    .cards {
-      grid-template-columns: 1fr 1fr; /* 2열 */
-      gap: 12px;
-    }
-    .day {
-      min-height: 80px;
-    }
-    .day .total {
-      font-size: 12px;
-    }
+@media (min-width: 720px) and (max-width: 1023px) {
+  .cards {
+    grid-template-columns: 1fr 1fr; /* 2열 */
+    gap: 12px;
   }
-  
-  /* =========================
+  .day {
+    min-height: 80px;
+  }
+  .day .total {
+    font-size: 12px;
+  }
+}
+
+/* =========================
      데스크탑 (≥ 1024px)
      ========================= */
-  @media (min-width: 1024px) {
-    .cards {
-      grid-template-columns: 1fr 1fr; /* 필요하면 3열로 변경 가능: 1fr 1fr 1fr */
-      gap: 14px;
-    }
-    .card {
-      padding: 12px;
-    }
-    .day {
-      min-height: 90px;      /* 데스크탑은 여유롭게 */
-      padding: 8px;
-    }
-    .day .d {
-      font-size: 13px;
-    }
-    .day .total {
-      font-size: 13px;       /* 데스크탑에서는 가독성↑ */
-      font-weight: 700;
-    }
+@media (min-width: 1024px) {
+  .cards {
+    grid-template-columns: 1fr 1fr; /* 필요하면 3열로 변경 가능: 1fr 1fr 1fr */
+    gap: 14px;
   }
-  
+  .card {
+    padding: 12px;
+  }
+  .day {
+    min-height: 90px; /* 데스크탑은 여유롭게 */
+    padding: 8px;
+  }
+  .day .d {
+    font-size: 13px;
+  }
+  .day .total {
+    font-size: 13px; /* 데스크탑에서는 가독성↑ */
+    font-weight: 700;
+  }
+}
+
 /* 본문이 탭바에 안 가려지게 여유 */
 main {
   padding-bottom: 70px;
@@ -409,7 +414,7 @@ main {
 /* 모바일에서 탭바 텍스트 보기 좋게 */
 @media (max-width: 719px) {
   .tabbar {
-    height: 56px;
+    height: 76px;
   }
   .tablink {
     font-size: 14px;
@@ -426,14 +431,13 @@ main {
 /* 입력 바를 헤더 안에서 sticky 유지 */
 .entrybar {
   position: sticky;
-  top: 0;        /* 필요하면 0~8px 등 조정 */
+  top: 0; /* 필요하면 0~8px 등 조정 */
   background: #fff;
-  z-index: 15;   /* 헤더 내부 요소 위로 */
+  z-index: 15; /* 헤더 내부 요소 위로 */
 }
 
-
 :root {
-  --tabbar-h: 55px;   /* 네 탭바 높이와 맞춰주세요 */
+  --tabbar-h: 55px; /* 네 탭바 높이와 맞춰주세요 */
   --entrybar-h: 133px; /* 입력바 대략 높이 */
 }
 
@@ -452,37 +456,46 @@ main {
   border-top: 1px solid #eee;
   padding: 8px 12px;
   z-index: 25; /* 탭바(보통 20)보다 높게 */
-  box-shadow: 0 -6px 16px rgba(0,0,0,0.06);
+  box-shadow: 0 -6px 16px rgba(0, 0, 0, 0.06);
 }
 
 /* 모바일에서 입력칸 약간 압축 */
-.entrybar .row { gap: 6px; }
-.entrybar input[type="number"] { width: 110px; }
-.entrybar input[type="date"]   { width: 140px; }
-
-@media (min-width: 1024px) {
-  :root { --entrybar-h: 72px; } /* 큰 화면에선 약간 키움(선택) */
+.entrybar .row {
+  gap: 6px;
+}
+.entrybar input[type="number"] {
+  width: 110px;
+}
+.entrybar input[type="date"] {
+  width: 140px;
 }
 
+@media (min-width: 1024px) {
+  :root {
+    --entrybar-h: 72px;
+  } /* 큰 화면에선 약간 키움(선택) */
+}
 
 /* === 하단 고정 입력바 최종 규칙(기존 sticky 무효화) === */
 :root {
-  --tabbar-h: 56px;   /* 실제 하단 탭바 높이에 맞춰 조정 (예: 60px) */
+  --tabbar-h: 76px; /* 실제 하단 탭바 높이에 맞춰 조정 (예: 60px) */
   --entrybar-h: 224px; /* 입력바 대략 높이 (필요시 72px 등) */
 }
 
 .entrybar {
   position: fixed !important; /* 과거 sticky 덮어쓰기 */
-  top: auto !important;       /* 위 고정 제거 */
+  top: auto !important; /* 위 고정 제거 */
   left: 0;
   right: 0;
-  bottom: calc(var(--tabbar-h) + env(safe-area-inset-bottom)); /* 탭바 바로 위 */
+  bottom: calc(
+    var(--tabbar-h) + env(safe-area-inset-bottom)
+  ); /* 탭바 바로 위 */
   background: #fff;
   border-top: 1px solid #eee;
   border-radius: 30px 30px 0 0;
   padding: 15px 15px;
-  z-index: 25;                /* 탭바보다 위 */
-  box-shadow: 0 -6px 16px rgba(0,0,0,0.03);
+  z-index: 25; /* 탭바보다 위 */
+  box-shadow: 0 -6px 16px rgba(0, 0, 0, 0.03);
 }
 
 /* 본문이 입력바+탭바에 안 가리도록 하단 여유 */
@@ -491,10 +504,16 @@ main {
 }
 
 /* 모바일에서 입력칸 살짝 압축 (원하면 조정) */
-.entrybar .row { gap: 12px; }
-.entrybar input[type="number"] { width: 110px; }
-.entrybar input[type="date"]   { width: 140px; height: 46px; }
-
+.entrybar .row {
+  gap: 12px;
+}
+.entrybar input[type="number"] {
+  width: 110px;
+}
+.entrybar input[type="date"] {
+  width: 140px;
+  height: 46px;
+}
 
 :root {
   --overscroll-b: 40px; /* 원하는 여유(≈30px) */
@@ -505,16 +524,14 @@ main {
   padding-bottom: var(--overscroll-b);
 }
 
-
 .welcome {
-  text-align: left;   /* 가운데 정렬 */
-  font-size: 60px;      /* 글자 크기 */
-  font-weight: 700;     /* 글자 두께 */
-  color: #444;          /* 글자 색 */
+  text-align: left; /* 가운데 정렬 */
+  font-size: 60px; /* 글자 크기 */
+  font-weight: 700; /* 글자 두께 */
+  color: #444; /* 글자 색 */
   /* padding: 60px 16px;   /* 위아래 여백 크게 */
   letter-spacing: -0.8px;
 }
-
 
 /* 기록 탭에서만 main 패딩 변경 */
 body.tab-record main {
@@ -569,8 +586,8 @@ body.tab-record:not(.has-today) #todayList {
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 100%;      /* 리스트 공간을 가득 채움 */
-  padding: 0;        /* 필요시 조정 */
+  height: 100%; /* 리스트 공간을 가득 채움 */
+  padding: 0; /* 필요시 조정 */
   text-align: left;
   font-size: 70px;
   font-weight: 700;
@@ -582,14 +599,18 @@ body.tab-record:not(.has-today) #todayList {
 /* 1) 최신 브라우저(iOS 포함)라면 100dvh 사용해 주소창 수축/확장 보정 */
 @supports (height: 100dvh) {
   body.tab-record #tab-record {
-    height: calc(100dvh - var(--tabbar-h) - var(--entrybar-h) - env(safe-area-inset-bottom));
+    height: calc(
+      100dvh - var(--tabbar-h) - var(--entrybar-h) - env(safe-area-inset-bottom)
+    );
   }
 }
 
 /* 2) 폴백: 100vh (일부 브라우저) */
 @supports not (height: 100dvh) {
   body.tab-record #tab-record {
-    height: calc(100vh - var(--tabbar-h) - var(--entrybar-h) - env(safe-area-inset-bottom));
+    height: calc(
+      100vh - var(--tabbar-h) - var(--entrybar-h) - env(safe-area-inset-bottom)
+    );
   }
 }
 
@@ -606,7 +627,7 @@ body.tab-record #tab-record > .card:first-child {
   flex-direction: column;
   flex: 1 1 auto;
   min-height: 0; /* 중요 */
-  background-color: #30E48D;
+  background-color: #30e48d;
   border: 0px;
 }
 
@@ -624,7 +645,6 @@ body.tab-record:not(.has-today) #todayList {
   overflow: visible;
   padding-bottom: 0;
 }
-
 
 /* 캘린더 탭: 선택한 날짜 내역 리스트가 길어지면 카드도 함께 늘어나도록 */
 body.tab-calendar #list.list {
@@ -645,7 +665,6 @@ body.tab-recurring main {
   padding-bottom: calc(var(--tabbar-h) + env(safe-area-inset-bottom));
 }
 
-
 /* entrybar 안에서 카테고리 원형 버튼 */
 .entrybar .category-picker {
   display: flex;
@@ -664,9 +683,15 @@ body.tab-recurring main {
 }
 
 /* 색상 매핑 */
-.entrybar .circle.essential { background: #ff6b6b; } /* 필수: 레드톤 */
-.entrybar .circle.invest    { background: #4dabf7; } /* 투자: 블루톤 */
-.entrybar .circle.spend     { background: #51cf66; } /* 소비: 그린톤 */
+.entrybar .circle.essential {
+  background: #ff6b6b;
+} /* 필수: 레드톤 */
+.entrybar .circle.invest {
+  background: #4dabf7;
+} /* 투자: 블루톤 */
+.entrybar .circle.spend {
+  background: #51cf66;
+} /* 소비: 그린톤 */
 
 /* 선택 상태 강조 */
 .entrybar .circle.is-selected {
@@ -676,15 +701,17 @@ body.tab-recurring main {
 
 /* 접근성(포커스) */
 .entrybar .circle:focus-visible {
-  outline: 3px solid rgba(0,0,0,0.6);
+  outline: 3px solid rgba(0, 0, 0, 0.6);
   outline-offset: 2px;
 }
 
 /* 모바일 압축이 필요하면 */
 @media (max-width: 719px) {
-  .entrybar .circle { width: 26px; height: 26px; }
+  .entrybar .circle {
+    width: 26px;
+    height: 26px;
+  }
 }
-
 
 /* Today 탭 리스트 한 줄 레이아웃 */
 #todayList .trow {
@@ -695,27 +722,43 @@ body.tab-recurring main {
   padding: 8px 0;
   border-bottom: 1px solid #eee;
 }
-#todayList .trow:last-child { border-bottom: none; }
+#todayList .trow:last-child {
+  border-bottom: none;
+}
 
 #todayList .dot {
-  width: 12px; height: 12px; border-radius: 50%;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
   display: inline-block;
 }
-#todayList .dot.essential { background: #ff6b6b; }
-#todayList .dot.invest    { background: #4dabf7; }
-#todayList .dot.spend     { background: #51cf66; }
-
-#todayList .tname { 
-  overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
+#todayList .dot.essential {
+  background: #ff6b6b;
 }
-#todayList .tamt { 
-  font-weight: 600; min-width: 84px; text-align: right;
+#todayList .dot.invest {
+  background: #4dabf7;
+}
+#todayList .dot.spend {
+  background: #51cf66;
+}
+
+#todayList .tname {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+#todayList .tamt {
+  font-weight: 600;
+  min-width: 84px;
+  text-align: right;
 }
 #todayList .tdelete {
-  border: 1px solid #ddd; background: #fff;
-  border-radius: 6px; padding: 4px 8px; font-size: 12px;
+  border: 1px solid #ddd;
+  background: #fff;
+  border-radius: 6px;
+  padding: 4px 8px;
+  font-size: 12px;
 }
-
 
 /* 공통: 한 줄 레이아웃 (●카테고리 – 이름 – 금액 – 삭제) */
 #todayList .trow,
@@ -735,32 +778,63 @@ body.tab-recurring main {
 }
 
 /* 카테고리 동그라미 */
-#todayList .dot, #list .dot, #rList .dot {
-  width: 12px; height: 12px; border-radius: 50%;
+#todayList .dot,
+#list .dot,
+#rList .dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
   display: inline-block;
 }
-.dot.essential { background: #ff6b6b; } /* 필수 */
-.dot.invest    { background: #4dabf7; } /* 투자 */
-.dot.spend     { background: #51cf66; } /* 소비 */
+.dot.essential {
+  background: #ff6b6b;
+} /* 필수 */
+.dot.invest {
+  background: #4dabf7;
+} /* 투자 */
+.dot.spend {
+  background: #51cf66;
+} /* 소비 */
 
 /* 텍스트/버튼 정렬 */
-#todayList .tname, #list .tname, #rList .tname {
-  overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
+#todayList .tname,
+#list .tname,
+#rList .tname {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
-#todayList .tamt, #list .tamt, #rList .tamt {
-  font-weight: 600; min-width: 84px; text-align: right;
+#todayList .tamt,
+#list .tamt,
+#rList .tamt {
+  font-weight: 600;
+  min-width: 84px;
+  text-align: right;
 }
-#todayList .tdelete, #list .tdelete, #rList .tdelete {
-  border: 1px solid #ddd; background: #fff;
-  border-radius: 6px; padding: 4px 8px; font-size: 12px; line-height: 1;
+#todayList .tdelete,
+#list .tdelete,
+#rList .tdelete {
+  border: 1px solid #ddd;
+  background: #fff;
+  border-radius: 6px;
+  padding: 4px 8px;
+  font-size: 12px;
+  line-height: 1;
 }
 
 /* 모바일에서 간격 살짝 압축 */
 @media (max-width: 719px) {
-  #todayList .trow, #list .trow, #rList .trow { gap: 8px; }
-  #todayList .tamt, #list .tamt, #rList .tamt { min-width: 72px; }
+  #todayList .trow,
+  #list .trow,
+  #rList .trow {
+    gap: 8px;
+  }
+  #todayList .tamt,
+  #list .tamt,
+  #rList .tamt {
+    min-width: 72px;
+  }
 }
-
 
 /* 공통 리스트 행 넉넉하게 */
 #todayList .trow,
@@ -769,11 +843,11 @@ body.tab-recurring main {
   display: grid;
   grid-template-columns: 20px 1fr auto auto;
   align-items: center;
-  gap: 12px;                /* 요소 간격 살짝 키움 */
-  padding: 14px 0;          /* 상하 패딩 키워서 줄 높이 넉넉하게 */
+  gap: 12px; /* 요소 간격 살짝 키움 */
+  padding: 14px 0; /* 상하 패딩 키워서 줄 높이 넉넉하게 */
   border-bottom: 1px solid #eee;
-  font-size: 15px;          /* 글씨도 살짝 키움 */
-  line-height: 1.6;         /* 줄 간격 */
+  font-size: 15px; /* 글씨도 살짝 키움 */
+  line-height: 1.6; /* 줄 간격 */
 }
 #todayList .trow:last-child,
 #list .trow:last-child,
@@ -808,11 +882,10 @@ body.tab-recurring main {
   border: 1px solid #ddd;
   background: #fff;
   border-radius: 6px;
-  padding: 6px 10px;        /* 버튼 높이 늘림 */
+  padding: 6px 10px; /* 버튼 높이 늘림 */
   font-size: 13px;
   line-height: 1.2;
 }
-
 
 /* 공통 리스트 행 정리: 일정한 밑줄 간격 */
 #todayList .trow,
@@ -823,13 +896,13 @@ body.tab-recurring main {
   align-items: center;
   /* 내부 요소 사이 여백 최소화 */
   gap: 8px;
-  
+
   /* 행 자체 높이 확보 */
   padding: 14px 0;
-  
+
   /* 리스트 구분선 */
   border-bottom: 1px solid #e0e0e0;
-  
+
   /* 행 사이 마진 제거 (불필요) */
   margin: 0;
 }
@@ -845,21 +918,21 @@ body.tab-recurring main {
 #todayList.list,
 #list.list,
 #rList.list {
-  gap: 0 !important;         /* ← 이게 핵심! */
+  gap: 0 !important; /* ← 이게 핵심! */
 }
 
 /* 행 자체는 내부 컬럼 간격만 유지 */
 #todayList .trow,
 #list .trow,
 #rList .trow {
-  margin: 0;                  /* 혹시 남아있을 margin 제거 */
-  padding: 14px 0;            /* 행 높이는 padding으로 */
+  margin: 0; /* 혹시 남아있을 margin 제거 */
+  padding: 14px 0; /* 행 높이는 padding으로 */
   border-bottom: 1px solid #e0e0e0;
   display: grid;
   grid-template-columns: 20px 1fr auto auto;
   align-items: center;
-  column-gap: 8px;            /* 컬럼 간격은 column-gap만 사용 */
-  row-gap: 0;                 /* 세로 gap 없음 */
+  column-gap: 10px; /* 컬럼 간격은 column-gap만 사용 */
+  row-gap: 0; /* 세로 gap 없음 */
 }
 
 #todayList .trow:last-child,
@@ -867,7 +940,6 @@ body.tab-recurring main {
 #rList .trow:last-child {
   border-bottom: none;
 }
-
 
 /* 달력 그리드(있다면 유지): 7열 */
 .calendar {
@@ -880,10 +952,10 @@ body.tab-recurring main {
 .calendar .cell {
   background: #fff;
   /* border: 1px solid #eee; */
-  border-radius: 8px;     /* 원하는 둥근값 */
-  padding: 8px 6px;       /* 내부 여백 */
-  text-align: center;     /* 가운데 정렬 핵심 */
-  min-height: 64px;       /* 너무 찌그러지지 않게 최소 높이 */
+  border-radius: 8px; /* 원하는 둥근값 */
+  padding: 8px 6px; /* 내부 여백 */
+  text-align: center; /* 가운데 정렬 핵심 */
+  min-height: 64px; /* 너무 찌그러지지 않게 최소 높이 */
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -902,7 +974,7 @@ body.tab-recurring main {
 
 /* 날짜 숫자: 크게 */
 .calendar .cday {
-  font-size: 25px;        /* 요청값 */
+  font-size: 25px; /* 요청값 */
   line-height: 1.1;
   font-weight: 700;
   margin-top: 2px;
@@ -911,7 +983,7 @@ body.tab-recurring main {
 /* 금액: 중앙, 기존 크기(필요시 조절) */
 .calendar .camt {
   margin-top: 0px;
-  font-size: 10px;        /* 기존 캘린더 금액 크기 유지 */
+  font-size: 10px; /* 기존 캘린더 금액 크기 유지 */
   color: #444;
   white-space: nowrap;
   overflow: hidden;
@@ -936,8 +1008,13 @@ body.tab-recurring main {
 
 /* 모바일에서 높이 살짝 압축하고 간격 조정 */
 @media (max-width: 719px) {
-  .calendar .cell { padding: 6px 4px; min-height: 56px; }
-  .calendar .cday { font-size: 22px; }
+  .calendar .cell {
+    padding: 6px 4px;
+    min-height: 56px;
+  }
+  .calendar .cday {
+    font-size: 22px;
+  }
 }
 
 .welcome {
@@ -965,7 +1042,7 @@ body.tab-recurring main {
 .welcome-hello,
 .welcome-sub {
   align-self: flex-start; /* 부모 flex에서 자식도 왼쪽으로 */
-  text-align: left;       /* 혹시 잔여 text-align 있으면 무효화 */
+  text-align: left; /* 혹시 잔여 text-align 있으면 무효화 */
 }
 
 /* 캘린더 날짜 숫자 공통 */
@@ -982,16 +1059,17 @@ body.tab-recurring main {
 }
 
 .cday.is-selected::after {
-  content: '';
+  content: "";
   position: absolute;
-  top: 50%; left: 50%;
+  top: 50%;
+  left: 50%;
   transform: translate(-50%, -50%);
-  width: 34px; height: 34px;        /* 원 크기 */
-  background: #30E48D;
+  width: 34px;
+  height: 34px; /* 원 크기 */
+  background: #30e48d;
   border-radius: 50%;
-  z-index: -1;                      /* 숫자 뒤로 */
+  z-index: -1; /* 숫자 뒤로 */
 }
-
 
 /* 날짜 숫자: 동그라미 배경을 줄 준비 */
 .calendar .cday {
@@ -1001,20 +1079,20 @@ body.tab-recurring main {
   font-weight: 700;
 
   /* 동그라미를 만들기 위한 레이아웃 */
-  display: inline-flex;            /* 숫자 박스를 “정사각형”으로 */
+  display: inline-flex; /* 숫자 박스를 “정사각형”으로 */
   align-items: center;
   justify-content: center;
-  width: 36px;                     /* 원 지름 */
+  width: 36px; /* 원 지름 */
   height: 36px;
   border-radius: 50%;
-  background: transparent;         /* 기본은 투명 */
-  color: inherit;                  /* 기본 글자색 유지 */
-  margin-top: 2px;                 /* 기존 간격 유지 */
+  background: transparent; /* 기본은 투명 */
+  color: inherit; /* 기본 글자색 유지 */
+  margin-top: 2px; /* 기존 간격 유지 */
 }
 
 /* 선택된 날짜: 초록 원 + 흰색 숫자 */
 .calendar .cday.is-selected {
-  background: #30E48D;
+  background: #30e48d;
 }
 
 /* 혹시 남아있는 테두리 강조 제거 */
@@ -1023,11 +1101,10 @@ body.tab-recurring main {
   box-shadow: none !important;
 }
 
-
 .monthbar {
   display: grid;
   grid-template-columns: 40px 1fr 40px; /* 좌측 화살표 / 연월 / 우측 화살표 */
-  align-items: center;  /* ← 핵심! 세로축 가운데 정렬 */
+  align-items: center; /* ← 핵심! 세로축 가운데 정렬 */
   gap: 8px;
   margin: 8px 12px 10px;
 }
@@ -1037,13 +1114,16 @@ body.tab-recurring main {
   font-size: 18px;
   font-weight: 700;
   letter-spacing: 0.2px;
-  line-height: 1;        /* 텍스트 줄높이도 딱 맞춰주면 더 정확 */
+  line-height: 1; /* 텍스트 줄높이도 딱 맞춰주면 더 정확 */
 }
 
 .calnav {
   justify-self: center;
-  width: 36px; height: 36px;
-  display: flex; align-items: center; justify-content: center; /* ← 버튼 텍스트도 중앙 */
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center; /* ← 버튼 텍스트도 중앙 */
   background: none;
   border: none;
   font-size: 18px;
@@ -1051,21 +1131,20 @@ body.tab-recurring main {
   border-radius: 8px;
 }
 
-
 .tdelete {
-  background: #f5f5f5;        /* 밝은 회색 배경 */
-  border: 1px solid #ccc;     /* 테두리 회색 */
-  color: #555;                /* 글자 진한 회색 */
+  background: #f5f5f5; /* 밝은 회색 배경 */
+  border: 1px solid #ccc; /* 테두리 회색 */
+  color: #555; /* 글자 진한 회색 */
 }
 .tdelete:hover {
-  background: #e0e0e0;        /* hover 시 조금 진하게 */
+  background: #e0e0e0; /* hover 시 조금 진하게 */
 }
 
 /* Repeat 탭 카테고리 버튼을 Today 탭의 동그라미와 동일하게 */
-#rCategoryGroup.cat-group { 
-  display: flex; 
-  gap: 10px; 
-  align-items: center; 
+#rCategoryGroup.cat-group {
+  display: flex;
+  gap: 10px;
+  align-items: center;
 }
 
 /* 기본 형태: Today의 .entrybar .circle 과 동일 */
@@ -1074,18 +1153,24 @@ body.tab-recurring main {
   height: 28px;
   border-radius: 50%;
   border: 2px solid #ccc;
-  background: #f2f2f2;      /* 기본 중립 배경 */
+  background: #f2f2f2; /* 기본 중립 배경 */
   cursor: pointer;
   outline: none;
   padding: 0;
   line-height: 1;
-  font-size: 0;             /* 버튼 안 '●' 텍스트가 있다면 숨김 */
+  font-size: 0; /* 버튼 안 '●' 텍스트가 있다면 숨김 */
 }
 
 /* 색상 매핑: Today의 essential/invest/spend 색과 동일 */
-#rCategoryGroup .cat-btn[data-value="필수"] { background: #ff6b6b; } /* 레드 */
-#rCategoryGroup .cat-btn[data-value="투자"] { background: #4dabf7; } /* 블루 */
-#rCategoryGroup .cat-btn[data-value="소비"] { background: #51cf66; } /* 그린 */
+#rCategoryGroup .cat-btn[data-value="필수"] {
+  background: #ff6b6b;
+} /* 레드 */
+#rCategoryGroup .cat-btn[data-value="투자"] {
+  background: #4dabf7;
+} /* 블루 */
+#rCategoryGroup .cat-btn[data-value="소비"] {
+  background: #51cf66;
+} /* 그린 */
 
 /* 선택 상태 강조: Today의 .circle.is-selected 와 동일한 효과 */
 #rCategoryGroup .cat-btn.active {
@@ -1095,17 +1180,22 @@ body.tab-recurring main {
 
 /* 접근성(포커스) */
 #rCategoryGroup .cat-btn:focus-visible {
-  outline: 3px solid rgba(0,0,0,0.6);
+  outline: 3px solid rgba(0, 0, 0, 0.6);
   outline-offset: 2px;
 }
 
 /* 모바일에서 살짝 압축 (Today와 동일 톤) */
 @media (max-width: 719px) {
-  #rCategoryGroup .cat-btn { width: 26px; height: 26px; }
+  #rCategoryGroup .cat-btn {
+    width: 26px;
+    height: 26px;
+  }
 }
 
-body.tab-record #date:disabled { opacity: .6; cursor: not-allowed; }
-
+body.tab-record #date:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
 
 /* 캘린더 탭 전용 category-picker도 동일하게 적용 */
 #calEntry .category-picker {
@@ -1124,9 +1214,15 @@ body.tab-record #date:disabled { opacity: .6; cursor: not-allowed; }
   outline: none;
 }
 
-#calEntry .circle.essential { background: #ff6b6b; }
-#calEntry .circle.invest    { background: #4dabf7; }
-#calEntry .circle.spend     { background: #51cf66; }
+#calEntry .circle.essential {
+  background: #ff6b6b;
+}
+#calEntry .circle.invest {
+  background: #4dabf7;
+}
+#calEntry .circle.spend {
+  background: #51cf66;
+}
 
 #calEntry .circle.is-selected {
   box-shadow: 0 0 0 3px #111 inset;
@@ -1134,13 +1230,16 @@ body.tab-record #date:disabled { opacity: .6; cursor: not-allowed; }
 }
 
 #calEntry .circle:focus-visible {
-  outline: 3px solid rgba(0,0,0,0.6);
+  outline: 3px solid rgba(0, 0, 0, 0.6);
   outline-offset: 2px;
 }
 
 /* 모바일에서 조금 작게 */
 @media (max-width: 719px) {
-  #calEntry .circle { width: 26px; height: 26px; }
+  #calEntry .circle {
+    width: 26px;
+    height: 26px;
+  }
 }
 
 /* 캘린더 탭 카드 맨 아래에 여유 주기 */
@@ -1156,10 +1255,268 @@ body.tab-calendar #tab-calendar .card:last-child {
 
 /* 캘린더 바디 행 높이 고정 */
 #calendar {
-  grid-auto-rows: 86px;  /* 필요하면 72~96px 사이로 조정 */
+  grid-auto-rows: 86px; /* 필요하면 72~96px 사이로 조정 */
 }
 
 /* 반응형(모바일에서 조금 낮춰도 OK) */
 @media (max-width: 719px) {
-  #calendar { grid-auto-rows: 72px; }
+  #calendar {
+    grid-auto-rows: 72px;
+  }
+}
+
+/* === Bottom Sheet === */
+.sheet {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: none;
+}
+.sheet[aria-hidden="false"] {
+  display: block;
+}
+
+.sheet__scrim {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.25);
+}
+
+.sheet__panel {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: #fff;
+  border-radius: 20px 20px 0 0;
+  border-top: 1px solid #eee;
+  box-shadow: 0 -10px 24px rgba(0, 0, 0, 0.08);
+  padding: 12px;
+  transform: translateY(100%);
+  transition: transform 0.22s ease;
+}
+.sheet[aria-hidden="false"] .sheet__panel {
+  transform: translateY(0%);
+}
+
+.sheet__handle {
+  width: 44px;
+  height: 5px;
+  border-radius: 999px;
+  background: #ddd;
+  margin: 6px auto 8px;
+}
+.sheet__title {
+  margin: 4px 0 10px;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.sheet__form .row {
+  gap: 8px;
+}
+.sheet__form input[type="number"] {
+  width: 140px;
+}
+.sheet__form input[type="date"] {
+  width: 150px;
+}
+
+@media (max-width: 719px) {
+  .sheet__panel {
+    padding: 14px;
+  }
+  .sheet__form input[type="number"] {
+    width: 120px;
+  }
+  .sheet__form input[type="date"] {
+    width: 142px;
+  }
+}
+
+/* 모달 안 카테고리 동그라미 재사용 */
+#eCategoryGroup .circle {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid #ccc;
+  background: #f2f2f2;
+  cursor: pointer;
+}
+#eCategoryGroup .circle.essential {
+  background: #ff6b6b;
+}
+#eCategoryGroup .circle.invest {
+  background: #4dabf7;
+}
+#eCategoryGroup .circle.spend {
+  background: #51cf66;
+}
+#eCategoryGroup .circle.is-selected {
+  box-shadow: 0 0 0 3px #111 inset;
+  border-color: #111;
+}
+#eCategoryGroup .circle:focus-visible {
+  outline: 3px solid rgba(0, 0, 0, 0.6);
+  outline-offset: 2px;
+}
+
+button.tdelete {
+  background: none;
+  border: none;
+  padding: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+button.tdelete img {
+  width: 16px;
+  height: 16px;
+}
+
+button.tdelete:hover img {
+  opacity: 0.7;
+}
+
+
+/* === Today 탭 전용 카드/아이콘 (최후 우선순위) === */
+body.tab-record #todayList .trow {
+  background: #fff !important;
+  border-radius: 15px !important;
+  border: none !important;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.06) !important;
+  padding: 14px 16px !important;
+  margin: 0 0 10px !important;
+  display: grid !important;
+  grid-template-columns: 15px 0.8fr auto 15px !important; /* ● | 이름 | 금액 | 삭제 */
+  align-items: center !important;
+  column-gap: 20px !important;
+  border-bottom: none !important;
+}
+
+body.tab-record #todayList .tdelete {
+  border: none !important;
+  background: transparent !important; /* 안의 <img>만 보이게 */
+  padding: 0 !important;
+  width: 12px !important;
+  height: 12px !important;
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+body.tab-record #todayList .tdelete img {
+  display: block !important;
+  width: 12px !important;
+  height: 12px !important;
+  object-fit: contain !important;
+}
+
+#list .tdelete,
+#rList .tdelete {
+  border: 0px;
+  /* background: #fff; */
+  /* border-radius: 6px; */
+  /* padding: 6px 10px; /* 버튼 높이 늘림 */
+  /* font-size: 13px; */
+  /* line-height: 1.2; */
+  width: 12px !important;
+  height: 12px !important;
+}
+
+#list .tdelete img,
+#rList .tdelete img {
+  border: 0px;
+  /* background: #fff; */
+  /* border-radius: 6px; */
+  /* padding: 6px 10px; /* 버튼 높이 늘림 */
+  /* font-size: 13px; */
+  /* line-height: 1.2; */
+  width: 12px !important;
+  height: 12px !important;
+}
+
+button#eDelete {
+  all: unset;
+  display: inline-block;
+  background: #ff5555;
+  color: #fff;
+  border-radius: 8px;
+  padding: 8px 16px;
+  cursor: pointer;
+}
+
+/* X 버튼 (Cancel 대체용) */
+#editSheet #eCancel {
+  position: absolute;
+  top: 14px;
+  right: 16px;
+  background: transparent;
+  border: none;
+  padding: 0;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+#editSheet #eCancel img {
+  width: 12px;
+  height: 12px;
+  object-fit: contain;
+  opacity: 0.8;
+  transition: opacity 0.2s ease;
+}
+
+#editSheet #eCancel:hover img {
+  opacity: 1;
+}
+
+
+/* Save / Delete 버튼이 들어있는 행 */
+#editSheet .sheet__form .row:last-of-type {
+  display: flex;
+  justify-content: space-between; /* 좌우로 벌리기 */
+  align-items: center;
+  gap: 10px; /* 버튼 간 간격 */
+}
+
+/* 각 버튼 기본 스타일 */
+#editSheet .sheet__form .row:last-of-type button {
+  flex: 1; /* 두 버튼이 같은 너비로 */
+  height: 40px;
+  border-radius: 8px;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+#eSave,
+#eDelete {
+  width: auto !important;
+  flex: 1; /* 필요하면 동일한 비율로 차지하도록 */
+}
+
+
+/* Save 버튼 강조 */
+#editSheet #eSave.primary {
+  background: #007bff;
+  color: #fff;
+  border: none;
+}
+
+/* Delete 버튼 */
+#editSheet #eDelete {
+  background: #f6f6f6;
+  border: 1px solid #ddd;
+  color: #333;
+}
+
+
+#editForm .sheet__form {
+  padding-bottom: 30px;
 }
